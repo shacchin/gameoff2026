@@ -7,6 +7,7 @@ Game Off 2026（itch.io のゲームジャム）に参加するためのソロ�
 - テーマ: （11/1 発表後に記入）
 - 企画: （確定後に記入。コアループ・必須機能・削れる機能）
 - タスク管理: Notion「Game Off 2026」ページ
+- itch.io ページ: https://shacchin.itch.io/shacchin-gameoff-proto（Draft。提出時にタイトル等を書き換える）
 
 応答・コメントは日本語で書く。
 
@@ -43,6 +44,15 @@ Assets/_Project/
   Art/
   Audio/
 ```
+
+## ドキュメント（Docs/）
+
+機能ごとの仕様と決定事項は `Docs/features/` に 1 機能 1 ファイルでまとめる（書き方は `Docs/README.md`）。
+
+- 機能の実装に入る前に、該当する `Docs/features/*.md` を読む。なければ `Docs/_template.md` から作り、「目的」と「仕様」をユーザーと確認してから実装する
+- 着手したら `status: 進行中` と `started`、完了したら `status: 完了` と `completed` を更新する
+- 仕様や決定事項が変わったら、コードと同じコミットでドキュメントも更新する
+- タスク・スケジュール・日々のメモは Notion で管理し、Docs には書かない
 
 ## Claude への注意
 
