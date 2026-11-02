@@ -68,11 +68,10 @@ completed: 2026-10-29
 - `Assets/_Project/Scenes/SampleScene.unity`（Main Camera の Pixel Perfect Camera）
 - `Assets/_Project/Scripts/Editor/PixelArtTextureImporter.cs`
 - `Assets/_Project/Art/AsepritePixelImporter.preset`
-- `Assets/_Project/Art/sample.aseprite`（表示確認用）
 
 ## 未決・TODO
 
-- [ ] Pixel Perfect Camera の Reference Resolution を 320×180 → 480×270 に変更する（エディタ作業）
-- [ ] テーマが決まったら `sample.aseprite` とシーン上のサンプルを削除する
+- [x] Pixel Perfect Camera の Reference Resolution を 320×180 → 480×270 に変更する（11/2）
+- [x] テーマが決まったら `sample.aseprite` とシーン上のサンプルを削除する（11/2）
 - [ ] Product Name をゲーム名に変える（ゲーム名決定後）
 - [ ] Aseprite の取り込みで Compression のデフォルト値を確認する（色がにじんだら）
