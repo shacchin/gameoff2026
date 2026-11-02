@@ -1,0 +1,458 @@
+<title>SHIFT プロトタイプ仕様</title>
+<meta name="claude:viewport-fit-sides" content="cover">
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=BIZ+UDPGothic:wght@400;700&family=DotGothic16&display=swap">
+<style>
+/* Layout: 1 カラムの仕様書。冒頭に遊べる画面イメージ、その下に流れ → 機能 → つながり → 未決 */
+:root {
+  --bg: #eef0f2;
+  --surface: #ffffff;
+  --fg: #1d2329;
+  --muted: #5b6670;
+  --line: #d3d8dd;
+  --sign: #e8a400;      /* 道路標識の黄 = 予告・注意 */
+  --sign-ink: #1d2329;
+  --portal: #0f9e94;    /* ポータル = シフト */
+  --portal-soft: #d6f1ee;
+  --danger: #d23a2a;
+  --font-display: "DotGothic16", "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", monospace;
+  --font-body: "BIZ UDPGothic", "Hiragino Sans", "Yu Gothic", "Meiryo", sans-serif;
+}
+@media (prefers-color-scheme: dark) {
+  :root:not([data-theme="light"]) {
+    --bg: #15191d; --surface: #1e2328; --fg: #e6e9ec; --muted: #9aa5af; --line: #333b43;
+    --sign: #f2b51c; --sign-ink: #15191d; --portal: #3cc9bd; --portal-soft: #183634; --danger: #ef5a48;
+    color-scheme: dark;
+  }
+}
+:root[data-theme="dark"] {
+  --bg: #15191d; --surface: #1e2328; --fg: #e6e9ec; --muted: #9aa5af; --line: #333b43;
+  --sign: #f2b51c; --sign-ink: #15191d; --portal: #3cc9bd; --portal-soft: #183634; --danger: #ef5a48;
+  color-scheme: dark;
+}
+body {
+  background: var(--bg); color: var(--fg);
+  font-family: var(--font-body); font-size: 15px; line-height: 1.8;
+}
+.wrap {
+  max-width: 980px; margin: 0 auto;
+  padding-left: max(16px, env(safe-area-inset-left, 0px));
+  padding-right: max(16px, env(safe-area-inset-right, 0px));
+  padding-block: 40px 64px;
+  display: flex; flex-direction: column; gap: 56px;
+}
+h1, h2 { font-family: var(--font-display); font-weight: 400; text-wrap: balance; line-height: 1.35; margin: 0; }
+h1 { font-size: clamp(28px, 5vw, 40px); }
+h2 { font-size: 22px; }
+p { margin: 0; }
+.eyebrow { font-size: 12px; letter-spacing: .12em; color: var(--muted); font-weight: 700; }
+section, header { display: flex; flex-direction: column; gap: 16px; min-width: 0; }
+.prose { max-width: 880px; display: flex; flex-direction: column; gap: 16px; }
+.lead { font-size: 17px; max-width: 40em; }
+code { font-size: .9em; background: var(--line); padding: 1px 5px; border-radius: 3px; overflow-wrap: anywhere; }
+
+.facts { display: flex; flex-wrap: wrap; gap: 8px; }
+.chip { display: inline-flex; gap: 6px; align-items: baseline; padding: 4px 12px; border: 1px solid var(--line); border-radius: 999px; font-size: 13px; background: var(--surface); }
+.chip b { font-variant-numeric: tabular-nums; }
+.chip.theme { border-color: var(--portal); color: var(--portal); font-weight: 700; }
+
+/* デモ */
+.demo { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; overflow: hidden; }
+.hud { display: flex; flex-wrap: wrap; justify-content: space-between; gap: 8px 16px; padding: 10px 14px; font-family: var(--font-display); font-size: 15px; border-bottom: 1px solid var(--line); font-variant-numeric: tabular-nums; }
+.hud .msg { color: var(--muted); font-family: var(--font-body); font-size: 13px; }
+canvas { display: block; width: 100%; max-width: 100%; aspect-ratio: 16 / 9; image-rendering: pixelated; cursor: crosshair; background: #2a3138; touch-action: manipulation; }
+canvas:focus-visible { outline: 3px solid var(--sign); outline-offset: -3px; }
+.controls { display: flex; flex-wrap: wrap; gap: 12px 28px; padding: 12px 14px; border-top: 1px solid var(--line); }
+.ctl { display: flex; flex-direction: column; gap: 4px; font-size: 12px; color: var(--muted); }
+.seg { display: inline-flex; border: 1px solid var(--line); border-radius: 4px; overflow: hidden; }
+.seg button { font: inherit; font-size: 13px; color: var(--fg); background: var(--surface); border: 0; padding: 4px 12px; cursor: pointer; font-variant-numeric: tabular-nums; }
+.seg button + button { border-left: 1px solid var(--line); }
+.seg button[aria-pressed="true"] { background: var(--fg); color: var(--bg); }
+.seg button:focus-visible { outline: 2px solid var(--sign); outline-offset: -2px; }
+.legend { display: flex; flex-wrap: wrap; gap: 6px 20px; padding: 10px 14px; font-size: 13px; color: var(--muted); border-top: 1px solid var(--line); }
+.legend span { display: inline-flex; align-items: center; gap: 6px; }
+.sw { width: 12px; height: 12px; border-radius: 2px; display: inline-block; }
+.note { font-size: 13px; color: var(--muted); }
+
+/* 流れ */
+.steps { list-style: none; margin: 0; padding: 0; display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 12px; }
+.steps li { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 14px; display: flex; flex-direction: column; gap: 6px; min-width: 0; }
+.steps .n { font-family: var(--font-display); color: var(--portal); font-size: 13px; }
+.steps b { font-size: 15px; }
+.steps p { font-size: 13px; color: var(--muted); line-height: 1.7; }
+.warn { border-left: 4px solid var(--sign); background: var(--surface); padding: 12px 16px; font-size: 14px; }
+
+/* 機能 */
+.features { display: flex; flex-direction: column; border-top: 1px solid var(--line); }
+.feature { display: grid; grid-template-columns: 48px 1fr; gap: 4px 12px; padding: 16px 0; border-bottom: 1px solid var(--line); }
+.feature .no { font-family: var(--font-display); font-size: 20px; color: var(--muted); }
+.feature h3 { margin: 0; font-size: 16px; }
+.feature ul { margin: 4px 0 0; padding-left: 1.2em; font-size: 14px; }
+.feature .file { font-size: 12px; color: var(--muted); }
+.feature > div { min-width: 0; }
+.num { font-variant-numeric: tabular-nums; font-weight: 700; }
+
+.diagram { background: var(--surface); border: 1px solid var(--line); border-radius: 6px; padding: 16px; overflow-x: auto; }
+.open { margin: 0; padding-left: 1.2em; display: flex; flex-direction: column; gap: 6px; }
+.open .where { font-size: 12px; color: var(--muted); }
+@media (prefers-reduced-motion: reduce) { * { scroll-behavior: auto; } }
+</style>
+
+<div class="wrap">
+
+<header class="prose">
+  <div class="eyebrow">GAME OFF 2026 ・ プロトタイプ（11/3〜11/8）</div>
+  <h1>ポータルで、事故のタイミングをずらす</h1>
+  <p class="lead">ヴィランが交通を混乱させた街。ヒーローが制圧するまでの 60 秒間、事故が起きそうな車を次元ポータルで別次元へ飛ばし、数秒後に同じ場所へ戻して衝突を避ける。</p>
+  <div class="facts">
+    <span class="chip theme">テーマ SHIFT ＝ 車を時間ごとシフトさせる</span>
+    <span class="chip">クリア <b>60 秒</b>耐える</span>
+    <span class="chip">失敗 事故 <b>1 回</b></span>
+    <span class="chip">画面 <b>480×270</b>・カメラ固定・交差点 <b>4</b> つ</span>
+  </div>
+</header>
+
+<section>
+  <div class="eyebrow">画面イメージ</div>
+  <h2>触れる簡易デモ</h2>
+  <div class="demo">
+    <div class="hud">
+      <span>残り <span id="time">60.0</span> 秒</span>
+      <span>ポータル <span id="portals">◆◆◆</span></span>
+      <span class="msg" id="msg">クリックで開始</span>
+    </div>
+    <canvas id="game" width="480" height="270" tabindex="0" aria-label="ゲーム画面のイメージ。道路をクリックするとポータルを置ける"></canvas>
+    <div class="controls">
+      <div class="ctl"><span>ポータルが開くまで</span>
+        <div class="seg" data-key="openDelay">
+          <button type="button" id="od-0" data-v="0" aria-pressed="true">0 秒</button><button type="button" id="od-05" data-v="0.5" aria-pressed="false">0.5 秒</button><button type="button" id="od-1" data-v="1" aria-pressed="false">1 秒</button>
+        </div></div>
+      <div class="ctl"><span>事故予告</span>
+        <div class="seg" data-key="lead">
+          <button type="button" id="ld-2" data-v="2" aria-pressed="true">2 秒前</button><button type="button" id="ld-12" data-v="1.2" aria-pressed="false">1.2 秒前</button><button type="button" id="ld-0" data-v="0" aria-pressed="false">なし</button>
+        </div></div>
+    </div>
+    <div class="legend">
+      <span><i class="sw" style="background:#e9edf1"></i>車</span>
+      <span><i class="sw" style="background:#f2b51c"></i>事故予告</span>
+      <span><i class="sw" style="background:#3cc9bd"></i>ポータル／戻ってくる車</span>
+      <span><i class="sw" style="background:#ef5a48"></i>事故</span>
+    </div>
+  </div>
+  <p class="note">イメージ合わせ用にブラウザで作った簡易版で、Unity の実装ではありません。内部解像度を 480×270（960×540 に対して 2 倍）にし、交差点を中央寄りに置いて、車が見えてから最初の交差点まで 2.3〜4 秒かかるようにしています。下のスイッチで「ポータルが開くまでの時間」と「予告の秒数」を切り替えて比べられます（切り替えると最初からやり直し）。その他の数値は Docs の初期値（車 3 マス/秒、ポータル最大 3 個、別次元 2 秒、出現間隔 1.2→0.5 秒）です。</p>
+</section>
+
+<section class="prose">
+  <div class="eyebrow">コアループ</div>
+  <h2>ポータルに入った車に起きること</h2>
+  <ol class="steps">
+    <li><span class="n">1</span><b>予告が出る</b><p>このまま進むと 2 秒以内にぶつかる組に「！」が出て、車が点滅する。</p></li>
+    <li><span class="n">2</span><b>道路にポータルを置く</b><p>クリックで設置。同時に置けるのは 3 個まで。</p></li>
+    <li><span class="n">3</span><b>車が別次元へ</b><p>ポータルに入った車は消え、当たり判定もなくなる。ポータルは 1 台で消える。</p></li>
+    <li><span class="n">4</span><b>2 秒後に同じ位置へ</b><p>同じ経路・同じ速度で走り出す。交差点に着くタイミングだけがずれる。</p></li>
+  </ol>
+  <p class="warn">戻った位置に後ろの車が来ていれば、そのまま事故になります。交差点が 4 つあるので、ずらした車が次の交差点でぶつかることもあります。「どの車を、どこで飛ばすか」を読むのがこのゲームの判断です。</p>
+  <p>「予告を見てクリックするだけ」にしないため、判断を生む軸を 2 つ持ちます。<b>A</b>：反応だけでは間に合わない状況を作る（予告の数がポータルの数を上回る、ポータルが開くまでに時間がかかる、予告を短くする）。<b>B</b>：解決した結果が次の問題を生む（上の連鎖）。序盤は予告を見て置くだけで解け、中盤以降は反応だけでは足りなくなる形を目指します。</p>
+</section>
+
+<section class="prose">
+  <div class="eyebrow">Docs/features/</div>
+  <h2>プロトタイプの機能</h2>
+  <div class="features">
+    <div class="feature"><span class="no">01</span><div>
+      <h3>道路と経路</h3>
+      <ul><li>1 画面のマップ、カメラ固定。見た目は Tilemap</li><li>車のルートは手で置いたウェイポイント。「距離 → 位置と向き」を返す</li><li>内部解像度 480×270。縦 2 本 × 横 2 本の道路で交差点 4 つ・直進のみ。忙しさは交差点の数で出す</li><li>交差点は中央寄りに置き、車が見えてから最初の交差点まで 3〜4 秒以上を目安にする</li></ul>
+      <span class="file">01-road-and-routes.md</span></div></div>
+    <div class="feature"><span class="no">02</span><div>
+      <h3>車の出現と移動</h3>
+      <ul><li>出現点から一定速度（<span class="num">3</span> マス/秒）で進み、消滅点で消える。止まらない・追い越さない</li><li>出現間隔（マップ全体）は <span class="num">1.2</span> 秒 → <span class="num">0.5</span> 秒に縮む</li><li>物理演算ではなく「経路上の距離」で動かす（未来の位置を計算しやすい）</li></ul>
+      <span class="file">02-car-spawn-and-move.md</span></div></div>
+    <div class="feature"><span class="no">03</span><div>
+      <h3>衝突判定と事故予告</h3>
+      <ul><li>走っている車どうしが重なったら事故（Collider2D トリガー）</li><li>未来の位置を 0.1 秒刻みで計算し、<span class="num">2</span> 秒以内にぶつかる組に「！」と点滅</li><li>予告の秒数は調整対象（2 秒前 / 1.2 秒前を比べる）</li></ul>
+      <span class="file">03-collision-and-warning.md</span></div></div>
+    <div class="feature"><span class="no">04</span><div>
+      <h3>ポータル</h3>
+      <ul><li>道路上をクリックで設置、同時に最大 <span class="num">3</span> 個</li><li>入った車は別次元へ。<span class="num">2</span> 秒後に同じ位置へ戻る。戻る位置に残り時間を表示</li><li>1 台飛ばすと消える。置いてから開くまでの時間を調整できる（初期値 0 秒）</li></ul>
+      <span class="file">04-portal.md</span></div></div>
+    <div class="feature"><span class="no">05</span><div>
+      <h3>ゲーム進行</h3>
+      <ul><li>シーンを開くと開始。残り <span class="num">60</span> 秒を表示</li><li>0 秒でクリア、事故でゲームオーバー（事故地点を強調してから結果）</li><li>クリックかキーでリトライ。タイトル画面は α 版で追加</li></ul>
+      <span class="file">05-game-flow.md</span></div></div>
+  </div>
+</section>
+
+<section class="prose">
+  <div class="eyebrow">クラスのつながり（予定）</div>
+  <h2>誰が誰に知らせるか</h2>
+  <div class="diagram">
+<pre class="mermaid">
+flowchart LR
+  CS["CarSpawner<br/>車を出す"] --> C["Car<br/>経路を進む"]
+  C --> R["Route<br/>距離→位置"]
+  AP["AccidentPredictor<br/>事故予告"] -->|未来の位置を読む| C
+  PP["PortalPlacer<br/>クリックで設置"] --> P["Portal"]
+  P -->|別次元へ・2秒後に復帰| C
+  C -->|事故の位置| GM["GameManager<br/>タイマー・状態"]
+  GM -->|OnClear / OnGameOver| CS
+  GM -->|OnClear / OnGameOver| PP
+  GM --> UI["結果画面"]
+</pre>
+  </div>
+</section>
+
+<section class="prose">
+  <div class="eyebrow">未決</div>
+  <h2>触ってから決めること</h2>
+  <ul class="open">
+    <li>ポータルの配置方法（クリック／自キャラが移動して置く／射程付き）<br><span class="where">04 ポータル ・ プロトタイプ後半に比較</span></li>
+    <li>カメラ（固定のままか、時間経過でズームアウトしてマップが広がるか、カメラを移動できるか）<br><span class="where">01 道路と経路 ・ プロトタイプ後半に比較</span></li>
+    <li>別次元から戻ってくる車も事故予告に含めるか（デモでは含めています）<br><span class="where">03 衝突判定と事故予告</span></li>
+    <li>使っていないポータルを回収できるようにするか<br><span class="where">04 ポータル</span></li>
+    <li>中盤以降、反応だけで解けてしまわないか（開くまでの時間・予告の秒数・ポータルの数で調整）。足りなければ、長押しでずらす時間を選べる案を試す<br><span class="where">03・04 ・ プロトタイプで確認</span></li>
+    <li>交差点で曲がる車を入れるか<br><span class="where">01 道路と経路</span></li>
+    <li>車の速度にばらつきを付けるか<br><span class="where">02 車の出現と移動</span></li>
+  </ul>
+</section>
+
+<section class="prose">
+  <div class="eyebrow">α版以降</div>
+  <h2>あとから足す難しさ</h2>
+  <ul class="open">
+    <li>車の種類：速い車、遅いバス、長いトラック。同じ経路でも追突が起きる</li>
+    <li>ヴィランのイベント：信号故障で一斉に車が来る、逆走車、道路封鎖など。途中でルールが変わる</li>
+    <li>飛ばせない車：救急車など。ほかの車を飛ばして道を空ける</li>
+    <li>後半は予告が短くなる（2 秒前 → 1.2 秒前など）</li>
+  </ul>
+</section>
+
+</div>
+
+<script>
+(() => {
+  const cv = document.getElementById('game');
+  const g = cv.getContext('2d');
+  const $time = document.getElementById('time');
+  const $portals = document.getElementById('portals');
+  const $msg = document.getElementById('msg');
+
+  const W = 480, HT = 270;
+  const SPEED = 48;          // 3 マス/秒（1 マス 16px）
+  const MAX_PORTALS = 3;
+  const AWAY = 2.0;          // 別次元にいる秒数
+  const ARRIVE = 2.0;        // 出現してから画面に入るまでの秒数（この間、画面端に矢印を出す）
+  const DURATION = 60;
+  const settings = { openDelay: 0, lead: 2, arrows: 0 }; // 来る車の矢印は試した結果、不採用
+
+  // 横 2 本・縦 2 本の道路（中心線の座標）。各道路に双方向の直進ルート
+  const H = [100, 170], V = [180, 300];
+  const ROUTES = [];
+  for (const y of H) ROUTES.push({ x0: -12, y0: y + 6, dx: 1, dy: 0, len: W + 24 }, { x0: W + 12, y0: y - 6, dx: -1, dy: 0, len: W + 24 });
+  for (const x of V) ROUTES.push({ x0: x - 6, y0: -12, dx: 0, dy: 1, len: HT + 24 }, { x0: x + 6, y0: HT + 12, dx: 0, dy: -1, len: HT + 24 });
+  const START = -SPEED * ARRIVE; // 車は画面外のこの距離から走り出す
+
+  let state, cars, portals, elapsed, spawnT, warnings, crashAt, clock = 0;
+
+  function reset(seed) {
+    cars = []; portals = []; warnings = []; crashAt = null;
+    elapsed = 0; spawnT = 0.3;
+    if (seed) { // 開始前の見本の配置
+      cars.push({ r: 0, d: 130, away: 0 }, { r: 3, d: 210, away: 0 }, { r: 4, d: 70, away: 0 }, { r: 7, d: 150, away: 0 }, { r: 6, d: -40, away: 0 }, { r: 1, d: -60, away: 0 });
+      portals.push({ x: 90, y: 106, open: 0 });
+    }
+  }
+
+  const pos = (r, d) => { const R = ROUTES[r]; return { x: R.x0 + R.dx * d, y: R.y0 + R.dy * d }; };
+  const half = r => ROUTES[r].dx ? { w: 6, h: 4 } : { w: 4, h: 6 };
+  function overlap(ra, a, rb, b) {
+    const ha = half(ra), hb = half(rb);
+    return Math.abs(a.x - b.x) < ha.w + hb.w - 1 && Math.abs(a.y - b.y) < ha.h + hb.h - 1;
+  }
+  // t 秒後の位置。別次元にいてまだ戻っていなければ null
+  function future(c, t) {
+    if (c.away > t) return null;
+    const d = c.d + SPEED * (t - c.away);
+    return d > ROUTES[c.r].len ? null : pos(c.r, d);
+  }
+
+  function update(dt) {
+    elapsed += dt;
+    if (elapsed >= DURATION) { state = 'clear'; return; }
+
+    spawnT -= dt;
+    if (spawnT <= 0) {
+      const r = Math.floor(Math.random() * ROUTES.length);
+      if (cars.some(c => c.r === r && c.d < START + 24)) spawnT = 0.1;
+      else {
+        cars.push({ r, d: START, away: 0 });
+        spawnT = 1.2 + (0.5 - 1.2) * (elapsed / DURATION);
+      }
+    }
+
+    for (const p of portals) p.open = Math.max(0, p.open - dt);
+    for (const c of cars) {
+      if (c.away > 0) { c.away = Math.max(0, c.away - dt); continue; }
+      c.d += SPEED * dt;
+      const p = pos(c.r, c.d);
+      const i = portals.findIndex(q => q.open === 0 && Math.hypot(q.x - p.x, q.y - p.y) < 5);
+      if (i >= 0) { portals.splice(i, 1); c.away = AWAY; }
+    }
+    cars = cars.filter(c => c.d <= ROUTES[c.r].len);
+
+    const run = cars.filter(c => c.away === 0);
+    for (let i = 0; i < run.length; i++) for (let j = i + 1; j < run.length; j++) {
+      const a = pos(run[i].r, run[i].d), b = pos(run[j].r, run[j].d);
+      if (overlap(run[i].r, a, run[j].r, b)) { state = 'crash'; crashAt = { x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 }; return; }
+    }
+
+    warnings = [];
+    for (const c of cars) c.warn = false;
+    if (settings.lead > 0) for (let i = 0; i < cars.length; i++) for (let j = i + 1; j < cars.length; j++) {
+      for (let t = 0.1; t <= settings.lead + 1e-6; t += 0.1) {
+        const a = future(cars[i], t), b = future(cars[j], t);
+        if (a && b && overlap(cars[i].r, a, cars[j].r, b)) {
+          cars[i].warn = cars[j].warn = true;
+          warnings.push({ x: (a.x + b.x) / 2, y: (a.y + b.y) / 2 });
+          break;
+        }
+      }
+    }
+  }
+
+  function rect(x, y, w, h, c) { g.fillStyle = c; g.fillRect(Math.round(x), Math.round(y), w, h); }
+  function tri(x, y, dx, dy, s, c) { // (dx, dy) の向きを指す三角形
+    g.fillStyle = c; g.beginPath();
+    g.moveTo(x + dx * s, y + dy * s);
+    g.lineTo(x - dx * s - dy * s, y - dy * s - dx * s);
+    g.lineTo(x - dx * s + dy * s, y - dy * s + dx * s);
+    g.closePath(); g.fill();
+  }
+
+  function draw() {
+    // 街区と道路
+    rect(0, 0, W, HT, '#2f3a33');
+    for (let x = 8; x < W; x += 48) for (let y = 8; y < HT; y += 40) rect(x, y, 28, 20, '#38463c');
+    for (const y of H) rect(0, y - 18, W, 36, '#8b949c');
+    for (const x of V) rect(x - 18, 0, 36, HT, '#8b949c');
+    for (const y of H) rect(0, y - 16, W, 32, '#3b4249');
+    for (const x of V) rect(x - 16, 0, 32, HT, '#3b4249');
+    // 中央線（交差点の中は描かない）
+    for (const y of H) for (let x = 0; x < W; x += 12) if (V.every(v => Math.abs(x + 3 - v) > 22)) rect(x, y - 1, 6, 2, '#d9dde1');
+    for (const x of V) for (let y = 0; y < HT; y += 12) if (H.every(h => Math.abs(y + 3 - h) > 22)) rect(x - 1, y, 2, 6, '#d9dde1');
+
+    // ポータル（開くまでは点線）
+    const pulse = 1 + Math.sin(clock * 6) * 0.6;
+    for (const p of portals) {
+      g.strokeStyle = '#3cc9bd'; g.lineWidth = 2;
+      if (p.open > 0) {
+        g.setLineDash([2, 3]);
+        g.beginPath(); g.arc(p.x, p.y, 7, 0, Math.PI * 2); g.stroke();
+        g.setLineDash([]);
+        g.beginPath(); g.arc(p.x, p.y, 3, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (1 - p.open / settings.openDelay)); g.stroke();
+        continue;
+      }
+      g.beginPath(); g.arc(p.x, p.y, 6 + pulse, 0, Math.PI * 2); g.stroke();
+      rect(p.x - 2, p.y - 2, 4, 4, '#a5f0e9');
+    }
+
+    // 車
+    const blink = Math.floor(clock / 0.15) % 2 === 0;
+    for (const c of cars) {
+      const p = pos(c.r, c.d), h = half(c.r), R = ROUTES[c.r];
+      if (c.d < 6) { // まだ画面外：画面端に矢印
+        if (settings.arrows && c.away === 0) {
+          const ex = R.dx ? (R.dx > 0 ? 5 : W - 5) : p.x;
+          const ey = R.dy ? (R.dy > 0 ? 5 : HT - 5) : p.y;
+          const soon = -c.d / SPEED < 0.6;
+          tri(ex, ey, R.dx, R.dy, soon && blink ? 5 : 4, soon ? '#ffffff' : '#cfd6dc');
+        }
+        continue;
+      }
+      if (c.away > 0) {
+        // 戻ってくる位置と残り時間
+        g.strokeStyle = '#3cc9bd'; g.lineWidth = 1; g.setLineDash([2, 2]);
+        g.strokeRect(Math.round(p.x - h.w) + 0.5, Math.round(p.y - h.h) + 0.5, h.w * 2 - 1, h.h * 2 - 1);
+        g.setLineDash([]);
+        g.lineWidth = 2;
+        g.beginPath(); g.arc(p.x, p.y, 10, -Math.PI / 2, -Math.PI / 2 + Math.PI * 2 * (c.away / AWAY)); g.stroke();
+        continue;
+      }
+      const body = c.warn && blink && state === 'play' ? '#f2b51c' : '#e9edf1';
+      rect(p.x - h.w, p.y - h.h, h.w * 2, h.h * 2, body);
+      if (R.dx) rect(R.dx > 0 ? p.x + 1 : p.x - 3, p.y - h.h + 1, 2, h.h * 2 - 2, '#4b6b86'); // 進行方向にフロントガラス
+      else rect(p.x - h.w + 1, R.dy > 0 ? p.y + 1 : p.y - 3, h.w * 2 - 2, 2, '#4b6b86');
+    }
+
+    // 事故予告
+    if (state === 'play') for (const w of warnings) {
+      const x = Math.round(w.x), y = Math.round(w.y) - 14;
+      g.fillStyle = '#f2b51c';
+      g.beginPath(); g.moveTo(x, y - 6); g.lineTo(x + 7, y + 5); g.lineTo(x - 7, y + 5); g.closePath(); g.fill();
+      rect(x - 1, y - 2, 2, 4, '#15191d'); rect(x - 1, y + 3, 2, 1, '#15191d');
+    }
+
+    if (crashAt) {
+      g.strokeStyle = '#ef5a48'; g.lineWidth = 2;
+      const r = 10 + (clock * 20) % 10;
+      g.beginPath(); g.arc(crashAt.x, crashAt.y, r, 0, Math.PI * 2); g.stroke();
+      rect(crashAt.x - 3, crashAt.y - 3, 6, 6, '#ef5a48');
+    }
+
+    if (state !== 'play') { g.fillStyle = 'rgba(21,25,29,0.45)'; g.fillRect(0, 0, W, HT); }
+
+    $time.textContent = Math.max(0, DURATION - elapsed).toFixed(1);
+    const left = MAX_PORTALS - portals.length;
+    $portals.textContent = '◆'.repeat(left) + '◇'.repeat(MAX_PORTALS - left);
+    $msg.textContent = {
+      ready: 'クリックで開始',
+      play: '道路をクリックしてポータルを置く',
+      crash: '事故！ クリックでリトライ',
+      clear: 'クリア！ クリックでもう一度',
+    }[state];
+  }
+
+  // クリック位置を一番近い車線に寄せる。道路の外なら null
+  function snap(x, y) {
+    const cands = [];
+    for (const h of H) if (Math.abs(y - h) < 16) cands.push({ x, y: h - 6 }, { x, y: h + 6 });
+    for (const v of V) if (Math.abs(x - v) < 16) cands.push({ x: v - 6, y }, { x: v + 6, y });
+    if (!cands.length) return null;
+    cands.sort((a, b) => Math.hypot(a.x - x, a.y - y) - Math.hypot(b.x - x, b.y - y));
+    return cands[0];
+  }
+
+  function start() { reset(false); state = 'play'; }
+  cv.addEventListener('pointerdown', e => {
+    if (state !== 'play') { start(); return; }
+    const b = cv.getBoundingClientRect();
+    const p = snap((e.clientX - b.left) * W / b.width, (e.clientY - b.top) * HT / b.height);
+    if (p && portals.length < MAX_PORTALS) portals.push({ ...p, open: settings.openDelay });
+  });
+  cv.addEventListener('keydown', e => {
+    if ((e.key === 'Enter' || e.key === ' ') && state !== 'play') { e.preventDefault(); start(); }
+  });
+
+  for (const seg of document.querySelectorAll('.seg')) {
+    seg.addEventListener('click', e => {
+      const btn = e.target.closest('button');
+      if (!btn) return;
+      settings[seg.dataset.key] = Number(btn.dataset.v);
+      for (const b of seg.querySelectorAll('button')) b.setAttribute('aria-pressed', String(b === btn));
+      reset(true); state = 'ready';
+    });
+  }
+
+  let last = performance.now();
+  function loop(now) {
+    const dt = Math.min(0.05, (now - last) / 1000); last = now;
+    clock += dt;
+    if (state === 'play') update(dt);
+    draw();
+    requestAnimationFrame(loop);
+  }
+  reset(true); state = 'ready';
+  draw();
+  requestAnimationFrame(loop);
+})();
+</script>

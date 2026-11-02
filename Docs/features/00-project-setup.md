@@ -23,7 +23,7 @@ completed: 2026-10-29
 
 - ビルドターゲットは Web
 - Compression Format: **Gzip** + Decompression Fallback ON。Brotli は itch.io で読み込みエラーになりやすいため
-- キャンバスサイズ: **960×540**（16:9。内部解像度 320×180 のちょうど 3 倍）
+- キャンバスサイズ: **960×540**（16:9。内部解像度 480×270 のちょうど 2 倍）
 - Company Name: `Shacchin`
 
 ### エディタ
@@ -40,9 +40,11 @@ completed: 2026-10-29
 
 ### ピクセルアート
 
-- 1 マス = **16px**（Pixels Per Unit 16）、内部解像度 **320×180**（画面に横 20 マス × 縦 11.25 マス）
+- 1 マス = **16px**（Pixels Per Unit 16）、内部解像度 **480×270**（画面に横 30 マス × 縦 16.875 マス）
+  - 最初は 320×180（3 倍表示）にしていたが、企画確定後（11/2）に 480×270（2 倍表示）へ変更
+  - 理由: 交差点を先読みして判断するゲームなので、見える範囲を広げる必要があった（詳細は `01-road-and-routes.md`）
 - Main Camera に Pixel Perfect Camera を追加
-  - Assets PPU 16 / Reference Resolution 320×180 / Crop Frame None / Grid Snapping **Upscale Render Texture**
+  - Assets PPU 16 / Reference Resolution 480×270 / Crop Frame None / Grid Snapping **Upscale Render Texture**
   - Upscale Render Texture を選んだ理由: 320×180 で描画してから拡大するので、回転や拡大縮小をしてもドットが崩れない
 - アンチエイリアス（MSAA）は URP の設定で最初からオフ
 - PNG: `Assets/_Project/Art/` に入れると、エディタ拡張が自動で Sprite / PPU 16 / Point / 圧縮なし / ミップマップなし にする
@@ -70,6 +72,7 @@ completed: 2026-10-29
 
 ## 未決・TODO
 
+- [ ] Pixel Perfect Camera の Reference Resolution を 320×180 → 480×270 に変更する（エディタ作業）
 - [ ] テーマが決まったら `sample.aseprite` とシーン上のサンプルを削除する
 - [ ] Product Name をゲーム名に変える（ゲーム名決定後）
 - [ ] Aseprite の取り込みで Compression のデフォルト値を確認する（色がにじんだら）
