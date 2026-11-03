@@ -53,6 +53,19 @@ completed: 2026-10-29
   - デフォルトから変える必要があったのは Pixels Per Unit（100 → 16）だけ
   - 取り込み手順の詳細は Notion「Aseprite → Unity 取り込みメモ」
 
+### DOTween
+
+- 演出・UI アニメーション用に **DOTween (HOTween v2) 無料版 v1.3.045** を Asset Store から導入（11/3）
+- `Assets/Plugins/Demigiant/` は `.gitignore` で除外し、リポジトリに含めない
+  - 理由: Asset Store 版を公開リポジトリに置くと再配布にあたるため。公式サイト版（改変しなければ再配布可）をコミットする案もあったが、Asset Store 版を除外する方を選んだ
+  - clone したら Asset Store から入れ直す必要がある。手順と使用バージョンは `README.md` に書く。更新したら README のバージョンも直す
+- 設定ファイル `Assets/Resources/DOTweenSettings.asset` はコミットする（DOTween 本体ではなく、このプロジェクト用の設定のため）
+- モジュール: Audio / Physics2D / Sprite / UI / UI Toolkit を ON、Physics を OFF
+  - TextMesh Pro のモジュールは Pro 版のみなので使えない
+  - UI を uGUI と UI Toolkit のどちらで作るかは未定なので、両方 ON にしておく
+- Create ASMDEF は使わない（プロジェクトで asmdef を使っていないため）
+- Safe Mode: ON（デフォルト）。破棄済みのオブジェクトを tween が触ってもエラーで止まらない
+
 ### itch.io
 
 - ページ: https://shacchin.itch.io/shacchin-gameoff-proto（Draft）。提出時にタイトルや説明を書き換えて、ビルドを差し替える
@@ -68,6 +81,9 @@ completed: 2026-10-29
 - `Assets/_Project/Scenes/SampleScene.unity`（Main Camera の Pixel Perfect Camera）
 - `Assets/_Project/Scripts/Editor/PixelArtTextureImporter.cs`
 - `Assets/_Project/Art/AsepritePixelImporter.preset`
+- `Assets/Resources/DOTweenSettings.asset`
+- `.gitignore`（DOTween の除外）
+- `README.md`（DOTween の導入手順）
 
 ## 未決・TODO
 

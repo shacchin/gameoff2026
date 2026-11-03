@@ -76,3 +76,7 @@ Desktop.ini
 # Claude Code (personal settings)
 .claude/settings.local.json
 CLAUDE.local.md
+
+# DOTween (Asset Store 版。ライセンス上リポジトリに含めない。導入手順は README.md)
+/[Aa]ssets/Plugins/Demigiant/
+/[Aa]ssets/Plugins/Demigiant.meta

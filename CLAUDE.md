@@ -23,7 +23,7 @@ Game Off 2026（itch.io のゲームジャム）に参加するためのソロ�
 - Unity 6000.3.17f1 / URP 2D（Renderer2D）
 - Input System（`Assets/InputSystem_Actions.inputactions`）
 - 2D パッケージ一式（Tilemap, Sprite, Animation, Aseprite / PSD Importer）
-- DOTween（演出・UI アニメーション用。導入予定。導入したら設定を `Docs/features/00-project-setup.md` に書く）
+- DOTween v1.3.045（演出・UI アニメーション用。Asset Store 版で、リポジトリには含めない。設定は `Docs/features/00-project-setup.md`）
 - **ビルドターゲット: Web (WebGL)**、itch.io にブラウザゲームとして公開
 
 ## WebGL の制約（実装時に必ず守る）
