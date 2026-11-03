@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// 経路に沿って一定の速度で進む車。物理演算は使わず、経路上の距離を毎フレーム進めて位置を決める。
 /// 見た目（スプライト）は右向き（+X）で描いておく。進行方向に合わせて回転させる。
+/// 当たり判定は Collider2D を使わず、size の四角どうしの重なりを AccidentPredictor が計算する。
 /// </summary>
 public class Car : MonoBehaviour
 {
@@ -16,6 +17,16 @@ public class Car : MonoBehaviour
     /// <summary>シーンにいる全部の車（別次元にいる車も含む）。事故予告などで使う。</summary>
     public static readonly List<Car> All = new List<Car>();
 
+    [Header("当たり判定")]
+    [Tooltip("当たり判定の四角の大きさ（マス）。x が進行方向の長さ、y が幅")]
+    [SerializeField] Vector2 size = new Vector2(0.75f, 0.5f);
+
+    [Header("事故予告の点滅")]
+    [Tooltip("点滅中に掛ける色")]
+    [SerializeField] Color warningColor = new Color(1f, 0.3f, 0.3f);
+    [Tooltip("点滅の切り替え間隔（秒）")]
+    [SerializeField] float blinkInterval = 0.12f;
+
     public Route Route { get; private set; }
     public float Speed { get; private set; }
 
@@ -25,13 +36,22 @@ public class Car : MonoBehaviour
     public State CurrentState { get; private set; } = State.Driving;
     public bool IsDriving => CurrentState == State.Driving;
 
+    /// <summary>当たり判定の四角の大きさ（マス）。x が進行方向の長さ、y が幅。</summary>
+    public Vector2 Size => size;
+
+    /// <summary>事故予告の対象か。AccidentPredictor が毎フレーム設定し、true の間は点滅する。</summary>
+    public bool IsWarned { get; set; }
+
     Renderer[] renderers;
-    Collider2D[] colliders;
+    SpriteRenderer[] sprites;
+    Color[] baseColors;
 
     void Awake()
     {
         renderers = GetComponentsInChildren<Renderer>();
-        colliders = GetComponentsInChildren<Collider2D>();
+        sprites = GetComponentsInChildren<SpriteRenderer>();
+        baseColors = new Color[sprites.Length];
+        for (int i = 0; i < sprites.Length; i++) baseColors[i] = sprites[i].color;
     }
 
     void OnEnable() => All.Add(this);
@@ -48,6 +68,7 @@ public class Car : MonoBehaviour
 
     void Update()
     {
+        UpdateBlink();
         if (Route == null || !IsDriving) return;
 
         Distance += Speed * Time.deltaTime;
@@ -66,7 +87,22 @@ public class Car : MonoBehaviour
         return Route.GetPosition(Distance + Speed * t);
     }
 
-    /// <summary>別次元へ飛ばす（その場で止まり、見えなくなり、ぶつからなくなる）。</summary>
+    /// <summary>
+    /// 今の速度のまま t 秒走ったときの位置と向き（別次元にいる時間は考えない）。
+    /// そのときに経路の末尾に着いて消えていれば false を返す。
+    /// </summary>
+    public bool TryGetFuturePose(float t, out Vector2 position, out Vector2 direction)
+    {
+        float d = Distance + Speed * t;
+        Route.Evaluate(d, out Vector3 p, out direction);
+        position = p;
+        return d < Route.Length;
+    }
+
+    /// <summary>
+    /// 別次元へ飛ばす（その場で止まり、見えなくなり、ぶつからなくなる）。
+    /// ぶつからなくなるのは、AccidentPredictor が走っている車だけを調べるため。
+    /// </summary>
     public void ShiftOut()
     {
         SetState(State.Shifted);
@@ -83,7 +119,15 @@ public class Car : MonoBehaviour
         CurrentState = state;
         bool visible = state == State.Driving;
         foreach (var r in renderers) r.enabled = visible;
-        foreach (var c in colliders) c.enabled = visible;
+    }
+
+    void UpdateBlink()
+    {
+        bool tinted = IsWarned && Mathf.Repeat(Time.time, blinkInterval * 2f) < blinkInterval;
+        for (int i = 0; i < sprites.Length; i++)
+        {
+            sprites[i].color = tinted ? baseColors[i] * warningColor : baseColors[i];
+        }
     }
 
     void ApplyTransform()
@@ -92,5 +136,13 @@ public class Car : MonoBehaviour
         transform.position = position;
         float angle = Mathf.Atan2(direction.y, direction.x) * Mathf.Rad2Deg;
         transform.rotation = Quaternion.Euler(0f, 0f, angle);
+    }
+
+    // 選択中の車の当たり判定をシーンビューに描く（ゲーム画面には出ない）
+    void OnDrawGizmosSelected()
+    {
+        Gizmos.color = Color.red;
+        Gizmos.matrix = transform.localToWorldMatrix;
+        Gizmos.DrawWireCube(Vector3.zero, size);
     }
 }
