@@ -59,6 +59,7 @@ Assets/_Project/
 
 - 機能の実装に入る前に、該当する `Docs/features/*.md` を読む。なければ `Docs/_template.md` から作り、「目的」と「仕様」をユーザーと確認してから実装する
 - 着手したら `status: 進行中` と `started`、完了したら `status: 完了` と `completed` を更新する
+- 機能の実装が一段落したら `feature-impl-memo` スキルで末尾に「実装メモ」を追記する
 - 仕様や決定事項が変わったら、コードと同じコミットでドキュメントも更新する
 - タスク・スケジュール・日々のメモは Notion で管理し、Docs には書かない
 
