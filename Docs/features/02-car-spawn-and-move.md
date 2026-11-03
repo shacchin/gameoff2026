@@ -1,7 +1,7 @@
 ---
-status: 未着手
-started:
-completed:
+status: 完了
+started: 2026-11-03
+completed: 2026-11-03
 ---
 
 # 車の出現と移動
@@ -23,12 +23,21 @@ completed:
 
 - 車は物理演算（Rigidbody の速度）では動かさず、経路上の距離を毎フレーム進めて位置を決める
   - 理由: 未来の位置を正確に計算できるので、事故予告がシンプルになる
+- 車のスプライトは右向き（+X）で描き、進行方向に合わせて transform を回転させる
+- 車の Prefab はロジックと見た目を分ける。ルート `Car`（Car コンポーネント・Collider2D）の子に `Visual`（SpriteRenderer）を置く
+  - 理由: Car がルートの位置・回転を毎フレーム上書きするので、揺れなどの演出は Visual に付けないと消える。絵の向きの補正や差し替えも Visual だけで済む
+- 同じ経路で前の車が出現点から `minGap`（初期値 2 マス）進むまでは、その経路には出さない。出せる経路がなければ次のフレームで再挑戦
+  - 理由: ランダムに経路を選ぶと、同じ経路に連続で出て出現直後に重なることがある
+- 別次元にいる車は、その場で止まり、Renderer と Collider2D を無効にする（GameObject は有効のまま）
+  - 理由: 全車のリスト `Car.All`（static）から外さずに、03 予告・04 ポータルから参照できるようにするため
 
 ## 関連ファイル
 
-- `Assets/_Project/Scripts/Car.cs`（予定）
-- `Assets/_Project/Scripts/CarSpawner.cs`（予定）
+- `Assets/_Project/Scripts/Car.cs`
+- `Assets/_Project/Scripts/CarSpawner.cs`
+- `Assets/_Project/Prefabs/Car.prefab`
 
 ## 未決・TODO
 
 - [ ] 車の速度に経路ごと・車ごとのばらつきを付けるか（触ってから決める）
+- [ ] 難易度調整で「出現させる経路の選び方」に条件を足すか（例: 経路ごとの重み、`GetFuturePosition` で衝突予定が多すぎる経路を避ける）。足す場合は `CarSpawner.TrySpawn` の候補絞り込みに追加する

@@ -561,6 +561,7 @@ GameObject:
   serializedVersion: 6
   m_Component:
   - component: {fileID: 769909599}
+  - component: {fileID: 769909600}
   m_Layer: 0
   m_Name: Routes
   m_TagString: Untagged
@@ -591,6 +592,25 @@ Transform:
   - {fileID: 929898370}
   m_Father: {fileID: 0}
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &769909600
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 769909598}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bd4d58e433a5e443b45c0baa944795c, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::CarSpawner
+  carPrefab: {fileID: 7145333716253320378, guid: f3ac57b5efa3fd444bee8fe85fbc2396, type: 3}
+  routes: []
+  carSpeed: 3
+  startInterval: 1.2
+  endInterval: 0.5
+  rampDuration: 60
+  minGap: 2
 --- !u!1 &929898369
 GameObject:
   m_ObjectHideFlags: 0
