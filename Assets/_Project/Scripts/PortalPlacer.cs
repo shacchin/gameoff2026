@@ -34,11 +34,13 @@ public class PortalPlacer : MonoBehaviour
         cam = Camera.main;
     }
 
+    // ゲームが終わったら置けなくする
+    void OnEnable() => GameManager.GameEnded += OnGameEnded;
+    void OnDisable() => GameManager.GameEnded -= OnGameEnded;
+    void OnGameEnded(GameManager.State result) => enabled = false;
+
     void Update()
     {
-        // 事故で止まっている間は置かない
-        if (Time.timeScale == 0f) return;
-
         Mouse mouse = Mouse.current;
         if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
 

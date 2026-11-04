@@ -39,6 +39,11 @@ public class CarSpawner : MonoBehaviour
         }
     }
 
+    // ゲームが終わったら車を出さない（timeScale = 0 でも止まるが、終わったことをはっきりさせる）
+    void OnEnable() => GameManager.GameEnded += OnGameEnded;
+    void OnDisable() => GameManager.GameEnded -= OnGameEnded;
+    void OnGameEnded(GameManager.State result) => enabled = false;
+
     void Update()
     {
         elapsed += Time.deltaTime;

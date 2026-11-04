@@ -24,10 +24,6 @@ public class AccidentPredictor : MonoBehaviour
     [Tooltip("ぶつかる地点に出す「！」マークの Prefab")]
     [SerializeField] GameObject warningMarkPrefab;
 
-    [Header("仮（05 ゲーム進行ができたら消す）")]
-    [Tooltip("事故が起きたらゲームを止める（Time.timeScale = 0）")]
-    [SerializeField] bool pauseOnAccident = true;
-
     struct Pose
     {
         public bool exists; // その時刻にまだ経路上にいるか
@@ -39,6 +35,9 @@ public class AccidentPredictor : MonoBehaviour
     readonly List<GameObject> marks = new List<GameObject>();
     Pose[] poses = new Pose[0]; // [車の番号 * stepCount + 時刻の番号]
     bool accidentHappened;
+
+    void OnEnable() => GameManager.GameEnded += OnGameEnded;
+    void OnDisable() => GameManager.GameEnded -= OnGameEnded;
 
     // 車の Update で位置が進んだあとに調べたいので LateUpdate
     void LateUpdate()
@@ -132,13 +131,23 @@ public class AccidentPredictor : MonoBehaviour
     void OnAccident(Vector3 position)
     {
         accidentHappened = true;
-        foreach (var car in Car.All) car.IsWarned = false;
-        foreach (var mark in marks) mark.SetActive(false);
+        ClearWarnings();
 
         Debug.Log($"事故発生: {position}");
         AccidentHappened?.Invoke(position);
+    }
 
-        if (pauseOnAccident) Time.timeScale = 0f;
+    // クリアでもゲームオーバーでも、終わったら予告を消して調べるのをやめる
+    void OnGameEnded(GameManager.State result)
+    {
+        ClearWarnings();
+        enabled = false;
+    }
+
+    void ClearWarnings()
+    {
+        foreach (var car in Car.All) car.IsWarned = false;
+        foreach (var mark in marks) mark.SetActive(false);
     }
 
     /// <summary>

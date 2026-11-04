@@ -30,6 +30,7 @@
 | `Grid > Map`（Tilemap） | シーン / Tilemap Renderer | -200 |
 | `Portal` | Prefab / `Visual` の Sprite Renderer | -100 |
 | `Car` | Prefab / `Visual` の Sprite Renderer | 0 |
+| `AccidentMark`（事故の地点） | Prefab / `Visual` の Sprite Renderer | 100 |
 | `ReturnMark` のアイコン | Prefab / `Visual` の Sprite Renderer | 200 |
 | `ReturnMark` の残り秒数 | Prefab / `TimeText` の TextMeshPro（Extra Settings） | 201 |
 | `WarningMark` | Prefab / `Visual` の Sprite Renderer | 210 |
