@@ -60,6 +60,32 @@ public class Route : MonoBehaviour
         direction = ((Vector2)(to - from)).normalized;
     }
 
+    /// <summary>point に一番近い経路上の位置（ポータルを車線の中心に置くのに使う）。</summary>
+    public Vector3 FindClosestPoint(Vector2 point)
+    {
+        if (points == null) Build();
+        if (points.Length < 2) return transform.position;
+
+        Vector3 closest = points[0];
+        float bestSqr = float.MaxValue;
+        for (int i = 0; i < points.Length - 1; i++)
+        {
+            Vector2 from = points[i];
+            Vector2 segment = (Vector2)points[i + 1] - from;
+            float lengthSqr = segment.sqrMagnitude;
+            float t = lengthSqr > 0f ? Mathf.Clamp01(Vector2.Dot(point - from, segment) / lengthSqr) : 0f;
+            Vector3 p = Vector3.Lerp(points[i], points[i + 1], t);
+
+            float sqr = (point - (Vector2)p).sqrMagnitude;
+            if (sqr < bestSqr)
+            {
+                bestSqr = sqr;
+                closest = p;
+            }
+        }
+        return closest;
+    }
+
     void Build()
     {
         int count = transform.childCount;
