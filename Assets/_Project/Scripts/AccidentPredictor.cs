@@ -51,7 +51,7 @@ public class AccidentPredictor : MonoBehaviour
             if (car.IsDriving) cars.Add(car);
         }
 
-        int stepCount = Mathf.FloorToInt(warningTime / step) + 1; // t = 0 を含む
+        int stepCount = Mathf.FloorToInt(warningTime / step) + 2; // 先頭の t = 0 を含む
         CalculatePoses(stepCount);
 
         int markCount = 0;
@@ -88,9 +88,21 @@ public class AccidentPredictor : MonoBehaviour
             for (int s = 0; s < stepCount; s++)
             {
                 ref Pose pose = ref poses[c * stepCount + s];
-                pose.exists = cars[c].TryGetFuturePose(s * step, out pose.position, out pose.direction);
+                pose.exists = cars[c].TryGetFuturePose(SampleTime(s), out pose.position, out pose.direction);
             }
         }
+    }
+
+    /// <summary>
+    /// s 番目に調べる時刻（今から何秒後か）。0 番目は今（事故の判定用）。
+    /// 1 番目以降は「今から 0.05 秒ごと」ではなく、ゲーム内の時刻で step 刻みの瞬間（12.30 秒, 12.35 秒…）を調べる。
+    /// 「今から」を基準にすると調べる瞬間がフレームごとにずれ、かすめるだけの組が当たったり外れたりして予告がちらつくため。
+    /// </summary>
+    float SampleTime(int s)
+    {
+        if (s == 0) return 0f;
+        float firstOffset = Mathf.Ceil(Time.time / step) * step - Time.time; // 次の刻みまでの秒数
+        return firstOffset + (s - 1) * step;
     }
 
     /// <summary>a と b が最初に重なる時刻の番号。warningTime 以内に重ならなければ -1。</summary>
