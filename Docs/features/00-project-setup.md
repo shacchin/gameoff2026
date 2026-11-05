@@ -78,7 +78,7 @@ completed: 2026-10-29
 - `ProjectSettings/ProjectSettings.asset`（Player 設定）
 - `ProjectSettings/EditorBuildSettings.asset`（Scene List）
 - `ProjectSettings/PresetManager.asset`（Aseprite の Preset 登録）
-- `Assets/_Project/Scenes/SampleScene.unity`（Main Camera の Pixel Perfect Camera）
+- `Assets/_Project/Scenes/Game.unity`（Main Camera の Pixel Perfect Camera）
 - `Assets/_Project/Scripts/Editor/PixelArtTextureImporter.cs`
 - `Assets/_Project/Art/AsepritePixelImporter.preset`
 - `Assets/Resources/DOTweenSettings.asset`

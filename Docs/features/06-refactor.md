@@ -1,6 +1,6 @@
 ---
-status: 未着手
-started:
+status: 進行中
+started: 2026-11-05
 completed:
 ---
 
@@ -30,8 +30,8 @@ completed:
 
 ### Editor
 
-- [ ] Canvas の Canvas Scaler: Reference Resolution を 800×600 → 960×540（ゲーム画面と同じ 16:9）、Match を 0.5 にする
-- [ ] `SampleScene` を `Game` などにリネームする（Project ウィンドウで F2）。`00-project-setup.md` の関連ファイルも直す
+- [x] Canvas の Canvas Scaler: Reference Resolution を 800×600 → 960×540（ゲーム画面と同じ 16:9）、Match を 0.5 にする
+- [x] `SampleScene` を `Game` にリネームする（Project ウィンドウで F2）。`00-project-setup.md` の関連ファイルも直す
 - [ ] （任意）URP テンプレートの残りを消す: `Assets/Settings/Lit2DSceneTemplate.scenetemplate`、`Assets/Settings/Scenes/`
 - [ ] `CarSpawner` が `Systems` ではなく `Routes` に付いている。子の経路を拾う仕組みなので Routes に置いたままにし、例外として CLAUDE.md に書き足す
 
@@ -47,7 +47,7 @@ completed:
 - `Assets/_Project/Scripts/Car.cs` / `Portal.cs` / `CarSpawner.cs` / `PortalPlacer.cs` / `Route.cs`
 - `Assets/_Project/Scripts/GameManager.cs` / `GameUI.cs` / `ReturnMark.cs`
 - `Assets/_Project/Prefabs/AccidentMark.prefab`
-- `Assets/_Project/Scenes/SampleScene.unity`（Canvas）
+- `Assets/_Project/Scenes/Game.unity`（Canvas）
 
 ## 未決・TODO
 
