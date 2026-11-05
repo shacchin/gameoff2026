@@ -105,10 +105,14 @@ public class AccidentPredictor : MonoBehaviour
         return firstOffset + (s - 1) * step;
     }
 
-    /// <summary>a と b が最初に重なる時刻の番号。warningTime 以内に重ならなければ -1。</summary>
+    /// <summary>
+    /// a と b が最初に重なる時刻の番号。warningTime 以内に重ならなければ -1。
+    /// s = 0（今）は刻みに揃っていないので調べない。調べると、刻みのあいだで一瞬だけかすめる組に、すれ違う瞬間だけ予告が出てしまう。
+    /// 今まさに重なっている組は、この前の事故の判定で拾う。
+    /// </summary>
     int FindFirstOverlap(int a, int b, int stepCount)
     {
-        for (int s = 0; s < stepCount; s++)
+        for (int s = 1; s < stepCount; s++)
         {
             if (IsOverlapping(a, b, s, stepCount, warningMargin)) return s;
         }
