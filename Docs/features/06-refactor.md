@@ -33,7 +33,7 @@ completed:
 - [x] Canvas の Canvas Scaler: Reference Resolution を 800×600 → 960×540（ゲーム画面と同じ 16:9）、Match を 0.5 にする
 - [x] `SampleScene` を `Game` にリネームする（Project ウィンドウで F2）。`00-project-setup.md` の関連ファイルも直す
 - [ ] （任意）URP テンプレートの残りを消す: `Assets/Settings/Lit2DSceneTemplate.scenetemplate`、`Assets/Settings/Scenes/`
-- [ ] `CarSpawner` が `Systems` ではなく `Routes` に付いている。子の経路を拾う仕組みなので Routes に置いたままにし、例外として CLAUDE.md に書き足す
+- [x] `CarSpawner` が `Systems` ではなく `Routes` に付いている。子の経路を拾う仕組みなので Routes に置いたままにし、例外として CLAUDE.md に書き足す
 
 ## 決定事項
 

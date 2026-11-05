@@ -45,6 +45,7 @@ Game Off 2026（itch.io のゲームジャム）に参加するためのソロ�
 - 描画順（Order in Layer）は `Docs/sorting-order.md` の帯域に従う。画面に出るものを新しく作ったら、その表に書き足す
 - シーンに 1 つだけ置くまとめ役（AccidentPredictor・GameManager など）は、空のオブジェクト `Systems` の子にまとめる
   - `Systems` は原点・回転なし・等倍のままにする（まとめ役が子として作るオブジェクトの大きさや位置に影響するため）
+  - 例外: `CarSpawner` は `Routes` に付ける。子の Route を自動で拾うため。ほかのスクリプトが経路を使うときは `CarSpawner.Routes` から取る（出どころを 1 つにする）
 
 ## フォルダ構成
 
