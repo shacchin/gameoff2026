@@ -10,6 +10,8 @@ public class PortalPlacer : MonoBehaviour
 {
     [SerializeField] Portal portalPrefab;
     [SerializeField] ReturnMark returnMarkPrefab;
+    [Tooltip("車線への吸着に使う経路の出どころ（Routes オブジェクトの CarSpawner）")]
+    [SerializeField] CarSpawner carSpawner;
 
     [Header("ポータル")]
     [Tooltip("同時に置けるポータルの数")]
@@ -25,13 +27,15 @@ public class PortalPlacer : MonoBehaviour
     [Tooltip("車線の中心からこの距離（マス）以内をクリックしたら、車線の中心に寄せる。道路 2 マス幅・片側 1 車線なら 0.5")]
     [SerializeField] float snapDistance = 0.5f;
 
-    Route[] routes;
     Camera cam;
 
     void Start()
     {
-        routes = FindObjectsByType<Route>(FindObjectsSortMode.None);
         cam = Camera.main;
+        if (carSpawner == null)
+        {
+            Debug.LogError("PortalPlacer に CarSpawner が設定されていないため、車線に吸着しません", this);
+        }
     }
 
     // ゲームが終わったら置けなくする
@@ -63,8 +67,10 @@ public class PortalPlacer : MonoBehaviour
     Vector3 SnapToLane(Vector2 point)
     {
         Vector3 result = point;
+        if (carSpawner == null) return result;
+
         float bestSqr = snapDistance * snapDistance;
-        foreach (var route in routes)
+        foreach (var route in carSpawner.Routes)
         {
             Vector3 p = route.FindClosestPoint(point);
             float sqr = (point - (Vector2)p).sqrMagnitude;

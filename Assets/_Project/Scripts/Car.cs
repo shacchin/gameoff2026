@@ -81,12 +81,6 @@ public class Car : MonoBehaviour
         ApplyTransform();
     }
 
-    /// <summary>今の速度のまま t 秒走ったときの位置（別次元にいる時間は考えない）。</summary>
-    public Vector3 GetFuturePosition(float t)
-    {
-        return Route.GetPosition(Distance + Speed * t);
-    }
-
     /// <summary>
     /// 今の速度のまま t 秒走ったときの位置と向き（別次元にいる時間は考えない）。
     /// そのときに経路の末尾に着いて消えていれば false を返す。

@@ -1482,6 +1482,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalPlacer
   portalPrefab: {fileID: 4287336662761203793, guid: 7291266ae2dd1e24889686dd0f73bcd6, type: 3}
   returnMarkPrefab: {fileID: 160060140627285119, guid: 702af178bbefcf8428c7f3440bf194d7, type: 3}
+  carSpawner: {fileID: 769909600}
   maxPortals: 3
   openDelay: 0
   lifetime: 3

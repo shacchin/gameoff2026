@@ -4,6 +4,7 @@ using UnityEngine;
 /// <summary>
 /// ランダムな経路の出現点に車を出す。出現の間隔はゲーム開始時は長く、時間が経つほど短くなる。
 /// routes が空なら、子オブジェクトにある Route を全部使う（Routes オブジェクトに付けると楽）。
+/// 使う経路の一覧は Routes で公開し、ほかのスクリプト（PortalPlacer など）もここから取る。
 /// </summary>
 public class CarSpawner : MonoBehaviour
 {
@@ -30,6 +31,9 @@ public class CarSpawner : MonoBehaviour
     float spawnTimer;
     readonly Dictionary<Route, Car> lastCarOnRoute = new Dictionary<Route, Car>();
     readonly List<Route> candidates = new List<Route>();
+
+    /// <summary>車が走る経路の一覧。</summary>
+    public IReadOnlyList<Route> Routes => routes;
 
     void Awake()
     {
@@ -58,7 +62,7 @@ public class CarSpawner : MonoBehaviour
     }
 
     /// <summary>今の出現間隔（秒）。</summary>
-    public float CurrentInterval()
+    float CurrentInterval()
     {
         float t = rampDuration > 0f ? Mathf.Clamp01(elapsed / rampDuration) : 1f;
         return Mathf.Lerp(startInterval, endInterval, t);

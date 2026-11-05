@@ -18,13 +18,13 @@ completed:
   - `Car.UpdateBlink`（予告の点滅）と `Portal.UpdateLook`（開く前の半透明）が毎フレーム `sprite.color` を書いている
   - 今のままだと、Visual の色を DOTween で変える演出（フェード・フラッシュなど）が毎フレーム元に戻されて効かない
   - 状態が変わったときだけ色を書く。「元の色を覚えて掛け合わせる」処理が 2 クラスで重複しているので揃える（点滅を DOTween にするのも可）
-- [ ] **経路の取り方を 1 つにする**
+- [x] **経路の取り方を 1 つにする**
   - `CarSpawner` は自分の子から、`PortalPlacer` は `FindObjectsByType<Route>` でシーン全体から取っていて、出どころが 2 つある
   - 複数レベルや道路封鎖を足すときに食い違わないよう、`CarSpawner` の経路を公開して `PortalPlacer` はそれを使う
 
 ### コード（優先度 中: 掃除）
 
-- [ ] 使っていないメソッドを消す: `Car.GetFuturePosition`、`Route.GetPosition`、`Route.GetDirection`。`CarSpawner.CurrentInterval` は private にする
+- [x] 使っていないメソッドを消す: `Car.GetFuturePosition`、`Route.GetPosition`、`Route.GetDirection`。`CarSpawner.CurrentInterval` は private にする
 - [ ] `GameUI.Update`（残り時間）と `ReturnMark.UpdateText`（残り秒数）の `ToString()` を、表示する値が変わったときだけにする（WebGL での GC によるカクつき対策）
 - [ ] `GameManager.ShowAccidentMark` の `transform.Find("Visual")`（名前で探しているので、リネームすると演出が黙って消える）。AccidentMark にスクリプトを付けて、拡大縮小の演出をそちらへ移す
 

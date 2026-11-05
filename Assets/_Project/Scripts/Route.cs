@@ -19,21 +19,9 @@ public class Route : MonoBehaviour
         Build();
     }
 
-    /// <summary>先頭から distance 進んだ位置。範囲外の値は先頭／末尾に丸める。</summary>
-    public Vector3 GetPosition(float distance)
-    {
-        Evaluate(distance, out Vector3 position, out _);
-        return position;
-    }
-
-    /// <summary>先頭から distance 進んだ位置での進行方向（長さ 1）。</summary>
-    public Vector2 GetDirection(float distance)
-    {
-        Evaluate(distance, out _, out Vector2 direction);
-        return direction;
-    }
-
-    /// <summary>先頭から distance 進んだ位置と進行方向をまとめて返す。</summary>
+    /// <summary>
+    /// 先頭から distance 進んだ位置と進行方向（長さ 1）。範囲外の distance は先頭／末尾に丸める。
+    /// </summary>
     public void Evaluate(float distance, out Vector3 position, out Vector2 direction)
     {
         if (points == null) Build();
