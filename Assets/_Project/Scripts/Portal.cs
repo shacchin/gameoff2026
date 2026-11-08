@@ -78,7 +78,7 @@ public class Portal : MonoBehaviour
 
     void Capture(Car car)
     {
-        car.ShiftOut();
+        car.ShiftOut(shiftDuration);
 
         if (returnMarkPrefab != null)
         {

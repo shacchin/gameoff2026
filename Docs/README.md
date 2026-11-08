@@ -28,8 +28,9 @@
 |---|---|
 | [00-project-setup.md](features/00-project-setup.md) | プロジェクトの初期設定（WebGL・フォルダ構成・ピクセルアート） |
 | [01-road-and-routes.md](features/01-road-and-routes.md) | 道路と経路（ウェイポイントで車のルートを決める） |
-| [02-car-spawn-and-move.md](features/02-car-spawn-and-move.md) | 車の出現と移動（時間経過で車が増える） |
+| [02-car-spawn-and-move.md](features/02-car-spawn-and-move.md) | 車の出現と移動（出し方は 07 で置き換え） |
 | [03-collision-and-warning.md](features/03-collision-and-warning.md) | 衝突判定と事故予告 |
 | [04-portal.md](features/04-portal.md) | ポータル（車を別次元へ飛ばし、数秒後に同じ位置へ戻す） |
 | [05-game-flow.md](features/05-game-flow.md) | ゲーム進行（60 秒タイマー・クリア／ゲームオーバー・リトライ） |
 | [06-refactor.md](features/06-refactor.md) | 要リファクタ（05 までの見直しで出た、コードと Editor の整理） |
+| [07-wave-sections.md](features/07-wave-sections.md) | 波の生成制御（20 秒 × 3 セクション、事故の予約・山場・谷） |

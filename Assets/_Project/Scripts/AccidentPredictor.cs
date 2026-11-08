@@ -14,9 +14,10 @@ public class AccidentPredictor : MonoBehaviour
     /// <summary>事故が起きたときに、事故の位置を渡して呼ばれる（05 ゲーム進行が受け取る）。</summary>
     public static event Action<Vector3> AccidentHappened;
 
+    [Tooltip("何秒先までの事故を予告するか（warningTime）はここから読む")]
+    [SerializeField] GameTuning tuning;
+
     [Header("予告")]
-    [Tooltip("何秒先までの事故を予告するか")]
-    [SerializeField] float warningTime = 2f;
     [Tooltip("未来の位置を調べる間隔（秒）。小さいほど正確で重い")]
     [SerializeField] float step = 0.05f;
     [Tooltip("予告のときだけ当たり判定を広げる量（マス）。かすめるだけの組も予告したいときに増やす")]
@@ -36,6 +37,15 @@ public class AccidentPredictor : MonoBehaviour
     Pose[] poses = new Pose[0]; // [車の番号 * stepCount + 時刻の番号]
     bool accidentHappened;
 
+    void Awake()
+    {
+        if (tuning == null)
+        {
+            Debug.LogError("AccidentPredictor に GameTuning が設定されていません", this);
+            enabled = false;
+        }
+    }
+
     void OnEnable() => GameManager.GameEnded += OnGameEnded;
     void OnDisable() => GameManager.GameEnded -= OnGameEnded;
 
@@ -51,7 +61,7 @@ public class AccidentPredictor : MonoBehaviour
             if (car.IsDriving) cars.Add(car);
         }
 
-        int stepCount = Mathf.FloorToInt(warningTime / step) + 2; // 先頭の t = 0 を含む
+        int stepCount = Mathf.FloorToInt(tuning.warningTime / step) + 2; // 先頭の t = 0 を含む
         CalculatePoses(stepCount);
 
         int markCount = 0;
@@ -169,8 +179,9 @@ public class AccidentPredictor : MonoBehaviour
     /// <summary>
     /// 回転した 2 つの四角が重なっているか（分離軸判定）。
     /// direction は進行方向（長さ 1）、halfSize.x が進行方向の半分の長さ、halfSize.y が幅の半分。
+    /// CarSpawner も、出す車がぶつからないかを調べるのに使う。
     /// </summary>
-    static bool OverlapRects(Vector2 centerA, Vector2 dirA, Vector2 halfA,
+    public static bool OverlapRects(Vector2 centerA, Vector2 dirA, Vector2 halfA,
                              Vector2 centerB, Vector2 dirB, Vector2 halfB)
     {
         Vector2 sideA = new Vector2(-dirA.y, dirA.x);
