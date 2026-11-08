@@ -34,3 +34,4 @@
 | [05-game-flow.md](features/05-game-flow.md) | ゲーム進行（60 秒タイマー・クリア／ゲームオーバー・リトライ） |
 | [06-refactor.md](features/06-refactor.md) | 要リファクタ（05 までの見直しで出た、コードと Editor の整理） |
 | [07-wave-sections.md](features/07-wave-sections.md) | 波の生成制御（20 秒 × 3 セクション、事故の予約・山場・谷） |
+| [08-shift-feedback.md](features/08-shift-feedback.md) | フィードバック（吸い込み演出と SE・背景色） |

@@ -19,7 +19,7 @@ MonoBehaviour:
   - label: "\u7B2C1\u5E55 \u5C0E\u5165"
     duration: 20
     fillerInterval: 1.4
-    firstAccidentDelay: 3
+    firstAccidentDelay: 7
     accidentIntervalMin: 3.5
     accidentIntervalMax: 4.5
     peakStart: 10
