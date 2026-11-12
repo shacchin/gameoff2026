@@ -14,12 +14,12 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::GameTuning
   warningTime: 2
   shiftDuration: 2
-  carSpeed: 4
+  carSpeed: 3.5
   sections:
   - label: "\u7B2C1\u5E55 \u5C0E\u5165"
     duration: 20
     fillerInterval: 1.4
-    firstAccidentDelay: 7
+    firstAccidentDelay: 5
     accidentIntervalMin: 3.5
     accidentIntervalMax: 4.5
     peakStart: 10
@@ -34,15 +34,15 @@ MonoBehaviour:
   - label: "\u7B2C2\u5E55 \u5C55\u958B"
     duration: 20
     fillerInterval: 1.2
-    firstAccidentDelay: 1.5
-    accidentIntervalMin: 2.5
-    accidentIntervalMax: 3.5
+    firstAccidentDelay: 3
+    accidentIntervalMin: 3
+    accidentIntervalMax: 4
     peakStart: 9
     peakEnd: 15
-    peakAccidentIntervalMin: 1.8
-    peakAccidentIntervalMax: 2.4
-    simultaneousChance: 0.3
-    chainChance: 0.3
+    peakAccidentIntervalMin: 2.2
+    peakAccidentIntervalMax: 2.8
+    simultaneousChance: 0.25
+    chainChance: 0
     chainGap: 0.8
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
@@ -56,8 +56,8 @@ MonoBehaviour:
     peakEnd: 15
     peakAccidentIntervalMin: 1.4
     peakAccidentIntervalMax: 2
-    simultaneousChance: 0.4
-    chainChance: 0.4
+    simultaneousChance: 0.35
+    chainChance: 0.3
     chainGap: 0.7
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
