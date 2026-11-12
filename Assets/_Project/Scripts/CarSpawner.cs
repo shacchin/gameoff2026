@@ -33,7 +33,7 @@ public class CarSpawner : MonoBehaviour
 
     [Header("確認用")]
     [Tooltip("事故を予約するたびに Console に出す")]
-    [SerializeField] bool logSchedule = true;
+    [SerializeField] bool logSchedule = false;
 
     /// <summary>
     /// 1 台の車が「いつから・どこから」走るか。時刻はゲーム開始からの秒数（WaveDirector.Elapsed）。
