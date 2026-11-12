@@ -48,6 +48,12 @@ public class Car : MonoBehaviour
     /// </summary>
     public float ShiftTimeLeft => IsDriving ? 0f : Mathf.Max(shiftEndTime - Time.time, 0f);
 
+    /// <summary>
+    /// 点滅していないときの色（子の最初の SpriteRenderer）。
+    /// 見た目の色は予告中に警告色と交互に変わるので、元の色が欲しいときはこちらを使う。
+    /// </summary>
+    public Color BaseColor => baseColors[0];
+
     Renderer[] renderers;
     SpriteRenderer[] sprites;
     Color[] baseColors;

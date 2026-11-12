@@ -24,10 +24,27 @@ public class ShiftFeedback : MonoBehaviour
     [SerializeField] float volume = 0.8f;
     [Tooltip("ピッチのばらつき（±）")]
     [SerializeField] float pitchJitter = 0.08f;
+    [Tooltip("同時に鳴らせる数。ピッチは AudioSource ごとに持つので、鳴っている途中の音の音程を変えないよう交互に使う")]
+    [SerializeField] int voiceCount = 3;
 
-    AudioSource audioSource;
+    AudioSource[] audioSources;
+    int nextVoice;
 
-    void Awake() => audioSource = GetComponent<AudioSource>();
+    void Awake()
+    {
+        // 付いている AudioSource を 1 つ目にして、足りない分を同じ設定で足す
+        var first = GetComponent<AudioSource>();
+        audioSources = new AudioSource[Mathf.Max(voiceCount, 1)];
+        audioSources[0] = first;
+        for (int i = 1; i < audioSources.Length; i++)
+        {
+            var source = gameObject.AddComponent<AudioSource>();
+            source.playOnAwake = false;
+            source.outputAudioMixerGroup = first.outputAudioMixerGroup;
+            source.spatialBlend = first.spatialBlend;
+            audioSources[i] = source;
+        }
+    }
 
     void OnEnable() => Portal.CarShifted += OnCarShifted;
     void OnDisable() => Portal.CarShifted -= OnCarShifted;
@@ -56,7 +73,7 @@ public class ShiftFeedback : MonoBehaviour
 
         var sprite = visual.gameObject.AddComponent<SpriteRenderer>();
         sprite.sprite = source.sprite;
-        sprite.color = source.color;
+        sprite.color = car.BaseColor; // source.color だと予告の点滅中の警告色を写してしまう
         sprite.flipX = source.flipX;
         sprite.flipY = source.flipY;
         sprite.sharedMaterial = source.sharedMaterial;
@@ -75,7 +92,14 @@ public class ShiftFeedback : MonoBehaviour
     {
         if (shiftClip == null) return;
 
-        audioSource.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
-        audioSource.PlayOneShot(shiftClip, volume);
+        // いちばん前に鳴らした AudioSource を使い回す。Play() はその AudioSource の前の音を止めてから鳴らすので、
+        // ピッチを変えても鳴っている途中の音には効かない
+        AudioSource source = audioSources[nextVoice];
+        nextVoice = (nextVoice + 1) % audioSources.Length;
+
+        source.clip = shiftClip;
+        source.volume = volume;
+        source.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
+        source.Play();
     }
 }
