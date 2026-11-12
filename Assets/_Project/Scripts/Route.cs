@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using UnityEngine;
 
 /// <summary>
@@ -72,6 +73,38 @@ public class Route : MonoBehaviour
             }
         }
         return closest;
+    }
+
+    /// <summary>
+    /// other と交差する地点を探し、(この経路での距離, other での距離) を result に足す（事故の予約に使う）。
+    /// 平行な区間（同じ道路の対向車線など）は交差とみなさない。
+    /// </summary>
+    public void FindCrossings(Route other, List<Vector2> result)
+    {
+        if (points == null) Build();
+        if (other.points == null) other.Build();
+
+        for (int i = 0; i < points.Length - 1; i++)
+        {
+            Vector2 p = points[i];
+            Vector2 r = (Vector2)points[i + 1] - p;
+            for (int j = 0; j < other.points.Length - 1; j++)
+            {
+                Vector2 q = other.points[j];
+                Vector2 s = (Vector2)other.points[j + 1] - q;
+
+                float denom = Cross(r, s);
+                if (Mathf.Abs(denom) < 1e-5f) continue; // 平行
+
+                float t = Cross(q - p, s) / denom; // この区間の中の割合
+                float u = Cross(q - p, r) / denom; // other の区間の中の割合
+                if (t < 0f || t > 1f || u < 0f || u > 1f) continue;
+
+                result.Add(new Vector2(distances[i] + t * r.magnitude, other.distances[j] + u * s.magnitude));
+            }
+        }
+
+        static float Cross(Vector2 a, Vector2 b) => a.x * b.y - a.y * b.x;
     }
 
     void Build()

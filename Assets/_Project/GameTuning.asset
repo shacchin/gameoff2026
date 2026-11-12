@@ -1,0 +1,63 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a03ccc35a5b01a5498b5fd6734b16368, type: 3}
+  m_Name: GameTuning
+  m_EditorClassIdentifier: Assembly-CSharp::GameTuning
+  warningTime: 2
+  shiftDuration: 2
+  carSpeed: 3.5
+  sections:
+  - label: "\u7B2C1\u5E55 \u5C0E\u5165"
+    duration: 20
+    fillerInterval: 1.4
+    firstAccidentDelay: 5
+    accidentIntervalMin: 3.5
+    accidentIntervalMax: 4.5
+    peakStart: 10
+    peakEnd: 15
+    peakAccidentIntervalMin: 2.5
+    peakAccidentIntervalMax: 3
+    simultaneousChance: 0
+    chainChance: 0
+    chainGap: 0.8
+    valleyDuration: 4
+    valleyFillerInterval: 3
+  - label: "\u7B2C2\u5E55 \u5C55\u958B"
+    duration: 20
+    fillerInterval: 1.2
+    firstAccidentDelay: 3
+    accidentIntervalMin: 3
+    accidentIntervalMax: 4
+    peakStart: 9
+    peakEnd: 15
+    peakAccidentIntervalMin: 2.2
+    peakAccidentIntervalMax: 2.8
+    simultaneousChance: 0.25
+    chainChance: 0
+    chainGap: 0.8
+    valleyDuration: 3.5
+    valleyFillerInterval: 2.5
+  - label: "\u7B2C3\u5E55 \u30AF\u30E9\u30A4\u30DE\u30C3\u30AF\u30B9"
+    duration: 20
+    fillerInterval: 1.1
+    firstAccidentDelay: 1.5
+    accidentIntervalMin: 2
+    accidentIntervalMax: 2.8
+    peakStart: 8
+    peakEnd: 15
+    peakAccidentIntervalMin: 1.4
+    peakAccidentIntervalMax: 2
+    simultaneousChance: 0.35
+    chainChance: 0.3
+    chainGap: 0.7
+    valleyDuration: 3.5
+    valleyFillerInterval: 2.5

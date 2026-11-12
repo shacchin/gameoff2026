@@ -4,7 +4,7 @@ using UnityEngine.InputSystem;
 /// <summary>
 /// クリックした位置にポータルを置く（Systems の子に 1 つ置く）。道路以外にも置ける。
 /// 道路の上（車線の中心の近く）をクリックしたときは、車線の中心に寄せて置く（車を吸い込み損ねないように）。
-/// ポータルの数値（開くまでの時間・開いている時間・別次元にいる時間）はここでまとめて調整する。
+/// ポータルの数値（開くまでの時間・開いている時間・同時に置ける数）はここで調整する。別次元にいる時間は GameTuning にある。
 /// </summary>
 public class PortalPlacer : MonoBehaviour
 {
@@ -20,8 +20,8 @@ public class PortalPlacer : MonoBehaviour
     [SerializeField] float openDelay = 0f;
     [Tooltip("開いてから消えるまでの時間（秒）。その間に車が来なければ消える")]
     [SerializeField] float lifetime = 5f;
-    [Tooltip("車が別次元にいる時間（秒）")]
-    [SerializeField] float shiftDuration = 2f;
+    [Tooltip("車が別次元にいる時間（shiftDuration）はここから読む")]
+    [SerializeField] GameTuning tuning;
 
     [Header("車線への吸着")]
     [Tooltip("車線の中心からこの距離（マス）以内をクリックしたら、車線の中心に寄せる。道路 2 マス幅・片側 1 車線なら 0.5")]
@@ -35,6 +35,11 @@ public class PortalPlacer : MonoBehaviour
         if (carSpawner == null)
         {
             Debug.LogError("PortalPlacer に CarSpawner が設定されていないため、車線に吸着しません", this);
+        }
+        if (tuning == null)
+        {
+            Debug.LogError("PortalPlacer に GameTuning が設定されていません", this);
+            enabled = false;
         }
     }
 
@@ -59,7 +64,7 @@ public class PortalPlacer : MonoBehaviour
         Vector3 position = SnapToLane(point);
         position.z = 0f;
         Portal portal = Instantiate(portalPrefab, position, Quaternion.identity, transform);
-        portal.Init(openDelay, lifetime, shiftDuration, returnMarkPrefab);
+        portal.Init(openDelay, lifetime, tuning.shiftDuration, returnMarkPrefab);
         return true;
     }
 

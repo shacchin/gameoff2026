@@ -42,9 +42,22 @@ public class Car : MonoBehaviour
     /// <summary>事故予告の対象か。AccidentPredictor が毎フレーム設定し、true の間は点滅する。</summary>
     public bool IsWarned { get; set; }
 
+    /// <summary>
+    /// 別次元から戻るまでの残り秒数（走っているときは 0）。
+    /// CarSpawner が、別次元にいる車も「戻ったあとにどこを走るか」まで含めてぶつからないかを調べるのに使う。
+    /// </summary>
+    public float ShiftTimeLeft => IsDriving ? 0f : Mathf.Max(shiftEndTime - Time.time, 0f);
+
+    /// <summary>
+    /// 点滅していないときの色（子の最初の SpriteRenderer）。
+    /// 見た目の色は予告中に警告色と交互に変わるので、元の色が欲しいときはこちらを使う。
+    /// </summary>
+    public Color BaseColor => baseColors[0];
+
     Renderer[] renderers;
     SpriteRenderer[] sprites;
     Color[] baseColors;
+    float shiftEndTime;
 
     void Awake()
     {
@@ -57,12 +70,15 @@ public class Car : MonoBehaviour
     void OnEnable() => All.Add(this);
     void OnDisable() => All.Remove(this);
 
-    /// <summary>出現直後に呼ぶ。経路の先頭に置く。</summary>
-    public void Init(Route route, float speed)
+    /// <summary>
+    /// 出現直後に呼ぶ。経路の先頭から startDistance 進んだ位置に置く。
+    /// startDistance は、出す予定の時刻からフレームの分だけ遅れたぶんを取り戻すのに使う（予約した事故の時刻がずれないように）。
+    /// </summary>
+    public void Init(Route route, float speed, float startDistance = 0f)
     {
         Route = route;
         Speed = speed;
-        Distance = 0f;
+        Distance = startDistance;
         ApplyTransform();
     }
 
@@ -96,9 +112,11 @@ public class Car : MonoBehaviour
     /// <summary>
     /// 別次元へ飛ばす（その場で止まり、見えなくなり、ぶつからなくなる）。
     /// ぶつからなくなるのは、AccidentPredictor が走っている車だけを調べるため。
+    /// 実際に戻すのは ReturnMark（ShiftIn を呼ぶ）。duration は戻る予定を CarSpawner に教えるために覚えておくだけ。
     /// </summary>
-    public void ShiftOut()
+    public void ShiftOut(float duration)
     {
+        shiftEndTime = Time.time + duration;
         SetState(State.Shifted);
     }
 
