@@ -571,6 +571,7 @@ MonoBehaviour:
   shiftClip: {fileID: 8300000, guid: 1c8e68290b3bc0048aca2cea6007ff59, type: 3}
   volume: 0.8
   pitchJitter: 0.08
+  voiceCount: 3
 --- !u!82 &560279936
 AudioSource:
   m_ObjectHideFlags: 0
@@ -934,7 +935,7 @@ MonoBehaviour:
   step: 0.05
   accidentRetryDelay: 0.25
   fillerRetryDelay: 0.1
-  logSchedule: 1
+  logSchedule: 0
 --- !u!1 &929898369
 GameObject:
   m_ObjectHideFlags: 0
