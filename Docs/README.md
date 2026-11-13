@@ -35,3 +35,4 @@
 | [06-refactor.md](features/06-refactor.md) | 要リファクタ（05 までの見直しで出た、コードと Editor の整理） |
 | [07-wave-sections.md](features/07-wave-sections.md) | 波の生成制御（20 秒 × 3 セクション、事故の予約・山場・谷） |
 | [08-shift-feedback.md](features/08-shift-feedback.md) | フィードバック（吸い込み演出と SE・背景色） |
+| [09-title-and-flow.md](features/09-title-and-flow.md) | タイトル画面とゲームの流れ（タイトル→プレイ→結果→リトライ／タイトルへ） |

@@ -18,6 +18,8 @@ public class GameUI : MonoBehaviour
     [SerializeField] TMP_Text resultText;
     [SerializeField] string clearMessage = "CLEAR!";
     [SerializeField] string gameOverMessage = "GAME OVER";
+    [Tooltip("RETRY ボタン。ゲームオーバーのときだけ出す（クリア時は TITLE ボタンだけ）")]
+    [SerializeField] GameObject retryButton;
 
     void Awake()
     {
@@ -41,6 +43,7 @@ public class GameUI : MonoBehaviour
         {
             resultText.text = result == GameManager.State.Cleared ? clearMessage : gameOverMessage;
         }
+        if (retryButton != null) retryButton.SetActive(result == GameManager.State.GameOver);
         if (resultPanel != null) resultPanel.SetActive(true);
     }
 }

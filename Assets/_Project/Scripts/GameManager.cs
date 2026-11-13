@@ -4,12 +4,14 @@ using DG.Tweening;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
+using UnityEngine.Serialization;
 
 /// <summary>
 /// 1 プレイの進行（プレイ中／クリア／ゲームオーバー）と残り時間を受け持つ（Systems の子に 1 つ置く）。
 /// - 残り時間が 0 になったらクリア、事故（AccidentPredictor.AccidentHappened）が起きたらゲームオーバー
 /// - 終わったら Time.timeScale = 0 で全体を止め、GameEnded で知らせる
-/// - 少し待ってから ResultShown で結果を出し、そのあとクリックかキー入力でシーンを読み込み直す
+/// - 少し待ってから ResultShown で結果を出す。そのあと Retry（ゲームオーバーのときだけ）か GoToTitle で次へ進む
+///   （GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -37,15 +39,20 @@ public class GameManager : MonoBehaviour
     [SerializeField] float gameOverResultDelay = 1.5f;
     [Tooltip("クリアしてから結果を出すまでの時間（秒）")]
     [SerializeField] float clearResultDelay = 0.5f;
-    [Tooltip("結果を出してから、リトライの入力を受け付けるまでの時間（秒）。慌てたクリックですぐリトライしないように")]
-    [SerializeField] float retryInputDelay = 0.3f;
+    [Tooltip("結果を出してから、リトライ／タイトルへの入力を受け付けるまでの時間（秒）。慌てた入力で結果を見ずに進まないように")]
+    [FormerlySerializedAs("retryInputDelay")]
+    [SerializeField] float choiceInputDelay = 0.3f;
+
+    [Header("シーン")]
+    [Tooltip("タイトルのシーンの名前（Build Profiles のシーン一覧に入っていること）")]
+    [SerializeField] string titleSceneName = "Title";
 
     public State CurrentState { get; private set; } = State.Playing;
 
     /// <summary>残り時間（秒）。GameUI が表示に使う。</summary>
     public float RemainingTime { get; private set; }
 
-    bool canRetry;
+    bool canChoose;
 
     void Awake()
     {
@@ -70,10 +77,24 @@ public class GameManager : MonoBehaviour
             return;
         }
 
-        if (canRetry && IsAnyInputPressed())
-        {
-            SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
-        }
+        Keyboard keyboard = Keyboard.current;
+        if (keyboard == null) return;
+        if (keyboard.rKey.wasPressedThisFrame) Retry();
+        else if (keyboard.tKey.wasPressedThisFrame) GoToTitle();
+    }
+
+    /// <summary>もう一度遊ぶ（シーンを読み込み直す）。ゲームオーバーのときだけ。GameUI の RETRY ボタンから呼ぶ。</summary>
+    public void Retry()
+    {
+        if (!canChoose || CurrentState != State.GameOver) return;
+        SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
+    }
+
+    /// <summary>タイトルに戻る。GameUI の TITLE ボタンから呼ぶ。</summary>
+    public void GoToTitle()
+    {
+        if (!canChoose) return;
+        SceneManager.LoadScene(titleSceneName);
     }
 
     void OnAccident(Vector3 position)
@@ -98,8 +119,8 @@ public class GameManager : MonoBehaviour
         yield return new WaitForSecondsRealtime(delay);
         ResultShown?.Invoke(CurrentState);
 
-        yield return new WaitForSecondsRealtime(retryInputDelay);
-        canRetry = true;
+        yield return new WaitForSecondsRealtime(choiceInputDelay);
+        canChoose = true;
     }
 
     void ShowAccidentMark(Vector3 position)
@@ -116,14 +137,5 @@ public class GameManager : MonoBehaviour
             .SetLoops(-1, LoopType.Yoyo)
             .SetUpdate(true)
             .SetLink(mark);
-    }
-
-    static bool IsAnyInputPressed()
-    {
-        Mouse mouse = Mouse.current;
-        if (mouse != null && mouse.leftButton.wasPressedThisFrame) return true;
-
-        Keyboard keyboard = Keyboard.current;
-        return keyboard != null && keyboard.anyKey.wasPressedThisFrame;
     }
 }
