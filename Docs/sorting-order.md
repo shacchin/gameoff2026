@@ -29,9 +29,10 @@
 |---|---|---|
 | `Grid > Map`（Tilemap） | シーン / Tilemap Renderer | -200 |
 | `Portal` | Prefab / `Visual` の Sprite Renderer | -100 |
+| `ReturnGhost`（戻ってくる車の半透明の写し） | `ReturnMark` の Ghost Sorting Order（実行時に作る） | -1 |
 | `Car` | Prefab / `Visual` の Sprite Renderer | 0 |
 | `AccidentMark`（事故の地点） | Prefab / `Visual` の Sprite Renderer | 100 |
 | `ShiftGhost`（吸い込まれる車の写し） | `ShiftFeedback` の Ghost Sorting Order（実行時に作る） | 100 |
 | `ReturnMark` のアイコン | Prefab / `Visual` の Sprite Renderer | 200 |
-| `ReturnMark` の残り秒数 | Prefab / `TimeText` の TextMeshPro（Extra Settings） | 201 |
+| `ReturnMark` の残り秒数（既定では非表示。10 を参照） | Prefab / `TimeText` の TextMeshPro（Extra Settings） | 201 |
 | `WarningMark` | Prefab / `Visual` の Sprite Renderer | 210 |

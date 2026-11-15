@@ -57,28 +57,18 @@ public class ShiftFeedback : MonoBehaviour
 
     void SpawnGhost(Car car, Vector3 portalPosition)
     {
-        SpriteRenderer source = car.GetComponentInChildren<SpriteRenderer>();
-        if (source == null) return;
-
         // 画面に出るものなので、ルート（動かす）と Visual（縮める・回す）に分けておく
         var root = new GameObject("ShiftGhost").transform;
         root.SetParent(transform, false);
         root.SetPositionAndRotation(car.transform.position, car.transform.rotation);
 
-        var visual = new GameObject("Visual").transform;
-        visual.SetParent(root, false);
-        visual.localPosition = source.transform.localPosition;
-        visual.localRotation = source.transform.localRotation;
-        visual.localScale = source.transform.localScale;
-
-        var sprite = visual.gameObject.AddComponent<SpriteRenderer>();
-        sprite.sprite = source.sprite;
-        sprite.color = car.BaseColor; // source.color だと予告の点滅中の警告色を写してしまう
-        sprite.flipX = source.flipX;
-        sprite.flipY = source.flipY;
-        sprite.sharedMaterial = source.sharedMaterial;
-        sprite.sortingLayerID = source.sortingLayerID;
-        sprite.sortingOrder = ghostSortingOrder;
+        SpriteRenderer sprite = car.CreateVisualCopy(root, ghostSortingOrder);
+        if (sprite == null)
+        {
+            Destroy(root.gameObject);
+            return;
+        }
+        Transform visual = sprite.transform;
 
         DOTween.Sequence()
             .Append(root.DOMove(new Vector3(portalPosition.x, portalPosition.y, root.position.z), suckDuration).SetEase(Ease.InQuad))

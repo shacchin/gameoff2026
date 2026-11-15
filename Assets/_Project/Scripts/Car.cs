@@ -133,6 +133,33 @@ public class Car : MonoBehaviour
         foreach (var r in renderers) r.enabled = visible;
     }
 
+    /// <summary>
+    /// 車の絵の写しを root の子 `Visual` として作る（吸い込み演出や、戻ってくるゴーストに使う）。
+    /// 色は点滅していない元の色にする。sprite.color を写すと、予告の点滅中の警告色を写してしまうため。
+    /// 絵がなければ null を返す。
+    /// </summary>
+    public SpriteRenderer CreateVisualCopy(Transform root, int sortingOrder)
+    {
+        SpriteRenderer source = GetComponentInChildren<SpriteRenderer>(true);
+        if (source == null) return null;
+
+        var visual = new GameObject("Visual").transform;
+        visual.SetParent(root, false);
+        visual.localPosition = source.transform.localPosition;
+        visual.localRotation = source.transform.localRotation;
+        visual.localScale = source.transform.localScale;
+
+        var sprite = visual.gameObject.AddComponent<SpriteRenderer>();
+        sprite.sprite = source.sprite;
+        sprite.color = BaseColor;
+        sprite.flipX = source.flipX;
+        sprite.flipY = source.flipY;
+        sprite.sharedMaterial = source.sharedMaterial;
+        sprite.sortingLayerID = source.sortingLayerID;
+        sprite.sortingOrder = sortingOrder;
+        return sprite;
+    }
+
     void UpdateBlink()
     {
         bool tinted = IsWarned && Mathf.Repeat(Time.time, blinkInterval * 2f) < blinkInterval;
