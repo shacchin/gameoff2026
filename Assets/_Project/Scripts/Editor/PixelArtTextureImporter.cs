@@ -5,7 +5,7 @@ using UnityEngine;
 public class PixelArtTextureImporter : AssetPostprocessor
 {
     const string ArtFolder = "Assets/_Project/Art/";
-    const int PixelsPerUnit = 16;
+    const int PixelsPerUnit = 32;
 
     void OnPreprocessTexture()
     {

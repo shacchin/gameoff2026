@@ -14,7 +14,7 @@ completed: 2026-10-29
 
 - Web (WebGL) でビルドして、itch.io のブラウザ上で起動できる
 - 自作アセットを外部アセットと分けて管理できる
-- 16px のドット絵が、ぼやけずに整数倍で表示される
+- 1 マス 32px のドット絵が、ぼやけずに整数倍で表示される（16px の仮アートも 2 倍で並べられる）
 - Aseprite / PNG を置くだけで、ピクセルアート向けの設定で取り込まれる
 
 ## 決定事項
@@ -23,7 +23,7 @@ completed: 2026-10-29
 
 - ビルドターゲットは Web
 - Compression Format: **Gzip** + Decompression Fallback ON。Brotli は itch.io で読み込みエラーになりやすいため
-- キャンバスサイズ: **960×540**（16:9。内部解像度 480×270 のちょうど 2 倍）
+- キャンバスサイズ: **960×540**（16:9。内部解像度と同じで等倍表示）
 - Company Name: `Shacchin`
 
 ### エディタ
@@ -40,17 +40,26 @@ completed: 2026-10-29
 
 ### ピクセルアート
 
-- 1 マス = **16px**（Pixels Per Unit 16）、内部解像度 **480×270**（画面に横 30 マス × 縦 16.875 マス）
+- 1 マス = **32px**（Pixels Per Unit 32）、内部解像度 **960×540**（画面に横 30 マス × 縦 16.875 マス）
   - 最初は 320×180（3 倍表示）にしていたが、企画確定後（11/2）に 480×270（2 倍表示）へ変更
-  - 理由: 交差点を先読みして判断するゲームなので、見える範囲を広げる必要があった（詳細は `01-road-and-routes.md`）
-- Main Camera に Pixel Perfect Camera を追加
-  - Assets PPU 16 / Reference Resolution 480×270 / Crop Frame None / Grid Snapping **Upscale Render Texture**
-  - Upscale Render Texture を選んだ理由: 320×180 で描画してから拡大するので、回転や拡大縮小をしてもドットが崩れない
+    - 理由: 交差点を先読みして判断するゲームなので、見える範囲を広げる必要があった（詳細は `01-road-and-routes.md`）
+  - 11/15 に 1 マス 16px → 32px へ変更。見える範囲（マス数）は変えずに、PPU と内部解像度をどちらも 2 倍にした
+    - 理由: アートスタイルの検討で、描き込みを細かくできる余地を残したかった
+    - ゲームのロジックはワールド単位（1 = 1 マス）で書いているので、コード・経路・Tilemap は変更なし
+- 16px の仮アート（`*_proto.aseprite`）は PPU 16 のまま使い続ける
+  - PPU 16 の絵は 1 ドットが 2×2 px で描かれる。整数倍なのでぼやけない
+  - 内部解像度が上がったため、16px 時代より移動が半ドット刻みになり、回転した絵のギザギザも減る（仮の段階では許容）
+  - 32px で描き直すときは、その画像の Pixels Per Unit を 32 に変える。同じファイルを上書きした場合、取り込み設定は PPU 16 のまま残る
+  - 16px と 32px の絵を同じ画面に混ぜると描き込みの細かさが揃わないので、描き直すときはまとめて切り替える
+- Main Camera に Pixel Perfect Camera を追加（Game・Title の両シーン）
+  - Assets PPU 32 / Reference Resolution 960×540 / Crop Frame None / Grid Snapping **Upscale Render Texture**
+  - Upscale Render Texture を選んだ理由: 内部解像度で描画してから拡大するので、回転や拡大縮小をしてもドットが崩れない
 - アンチエイリアス（MSAA）は URP の設定で最初からオフ
-- PNG: `Assets/_Project/Art/` に入れると、エディタ拡張が自動で Sprite / PPU 16 / Point / 圧縮なし / ミップマップなし にする
+- PNG: `Assets/_Project/Art/` に入れると、エディタ拡張が自動で Sprite / PPU 32 / Point / 圧縮なし / ミップマップなし にする
   - 最初のインポート時だけ適用する。あとから Inspector で変えた設定は上書きしない
 - Aseprite: `.aseprite` は専用の Importer で読み込まれるため、上のエディタ拡張は効かない。代わりに Preset をデフォルトに登録した
-  - デフォルトから変える必要があったのは Pixels Per Unit（100 → 16）だけ
+  - デフォルトから変える必要があったのは Pixels Per Unit（100 → 32）だけ
+  - Preset も最初の取り込み時だけ適用される。既存の仮アートは PPU 16 のまま
   - 取り込み手順の詳細は Notion「Aseprite → Unity 取り込みメモ」
 
 ### DOTween
@@ -78,7 +87,7 @@ completed: 2026-10-29
 - `ProjectSettings/ProjectSettings.asset`（Player 設定）
 - `ProjectSettings/EditorBuildSettings.asset`（Scene List）
 - `ProjectSettings/PresetManager.asset`（Aseprite の Preset 登録）
-- `Assets/_Project/Scenes/Game.unity`（Main Camera の Pixel Perfect Camera）
+- `Assets/_Project/Scenes/Game.unity` / `Title.unity`（Main Camera の Pixel Perfect Camera）
 - `Assets/_Project/Scripts/Editor/PixelArtTextureImporter.cs`
 - `Assets/_Project/Art/AsepritePixelImporter.preset`
 - `Assets/Resources/DOTweenSettings.asset`
@@ -88,6 +97,7 @@ completed: 2026-10-29
 ## 未決・TODO
 
 - [x] Pixel Perfect Camera の Reference Resolution を 320×180 → 480×270 に変更する（11/2）
+- [x] 1 マス 16px → 32px に変更する（11/15。仮アートは PPU 16 のまま）
 - [x] テーマが決まったら `sample.aseprite` とシーン上のサンプルを削除する（11/2）
 - [ ] Product Name をゲーム名に変える（ゲーム名決定後）
 - [ ] Aseprite の取り込みで Compression のデフォルト値を確認する（色がにじんだら）
