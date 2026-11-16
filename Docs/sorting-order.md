@@ -36,3 +36,4 @@
 | `ReturnMark` のアイコン | Prefab / `Visual` の Sprite Renderer | 200 |
 | `ReturnMark` の残り秒数（既定では非表示。10 を参照） | Prefab / `TimeText` の TextMeshPro（Extra Settings） | 201 |
 | `WarningMark` | Prefab / `Visual` の Sprite Renderer | 210 |
+| `ScorePopup`（事故の「+100」） | Prefab / `Visual` の TextMeshPro（Extra Settings） | 220 |

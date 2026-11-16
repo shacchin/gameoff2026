@@ -1,6 +1,7 @@
 using System;
 using System.Collections;
 using DG.Tweening;
+using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.SceneManagement;
@@ -40,6 +41,14 @@ public class GameManager : MonoBehaviour
     [SerializeField] GameObject accidentMarkPrefab;
     [Tooltip("事故のマークを出しておく時間（秒）")]
     [SerializeField] float accidentMarkDuration = 0.8f;
+    [Tooltip("事故の地点に出す「+100」の Prefab（子の Visual に TextMeshPro を置く。文字はここで書き換える）")]
+    [SerializeField] GameObject scorePopupPrefab;
+    [Tooltip("ポップアップを出す位置の、事故の地点からのずれ（マス）。事故マークと重ならないように上へずらす")]
+    [SerializeField] Vector2 popupOffset = new Vector2(0f, 0.5f);
+    [Tooltip("ポップアップが浮かび上がる高さ（マス）")]
+    [SerializeField] float popupRise = 0.6f;
+    [Tooltip("ポップアップが出てから消えるまでの時間（秒）")]
+    [SerializeField] float popupDuration = 0.8f;
 
     [Header("終わったときの演出")]
     [Tooltip("終わってから結果を出すまでの時間（秒）")]
@@ -112,6 +121,7 @@ public class GameManager : MonoBehaviour
 
         Score += pointsPerAccident;
         ShowAccidentMark(position);
+        ShowScorePopup(position, pointsPerAccident);
     }
 
     void End()
@@ -145,5 +155,34 @@ public class GameManager : MonoBehaviour
         visual.DOScale(visual.localScale * 1.3f, 0.15f)
             .SetLoops(-1, LoopType.Yoyo)
             .SetLink(mark);
+    }
+
+    /// <summary>
+    /// 事故の地点に「+100」を出し、浮かび上がりながら消す。
+    /// 動かすのは子の Visual（ルートの位置は事故の地点のまま）。
+    /// </summary>
+    void ShowScorePopup(Vector3 position, int points)
+    {
+        if (scorePopupPrefab == null) return;
+
+        position += (Vector3)popupOffset;
+        position.z = 0f;
+        GameObject popup = Instantiate(scorePopupPrefab, position, Quaternion.identity, transform);
+
+        TMP_Text text = popup.GetComponentInChildren<TMP_Text>();
+        if (text != null) text.text = $"+{points}";
+
+        Transform visual = popup.transform.Find("Visual");
+        if (visual == null) visual = popup.transform;
+
+        // 前半は見せたまま浮かび、後半で薄くする（すぐ薄くなると数字が読めない）
+        Sequence sequence = DOTween.Sequence().SetLink(popup);
+        sequence.Append(visual.DOLocalMoveY(visual.localPosition.y + popupRise, popupDuration).SetEase(Ease.OutCubic));
+        if (text != null)
+        {
+            sequence.Insert(popupDuration * 0.5f,
+                DOTween.To(() => text.alpha, a => text.alpha = a, 0f, popupDuration * 0.5f));
+        }
+        sequence.OnComplete(() => Destroy(popup));
     }
 }

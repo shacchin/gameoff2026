@@ -9043,6 +9043,10 @@ MonoBehaviour:
   pointsPerAccident: 100
   accidentMarkPrefab: {fileID: 2655757788010313237, guid: aea2b2f343696f543a7ed6425da11f06, type: 3}
   accidentMarkDuration: 0.8
+  scorePopupPrefab: {fileID: 6445559456670689230, guid: 9914f1319a2d48d4a927e11fd64f1751, type: 3}
+  popupOffset: {x: 0, y: 0.5}
+  popupRise: 0.6
+  popupDuration: 0.8
   resultDelay: 0.5
   choiceInputDelay: 0.3
   titleSceneName: Title
