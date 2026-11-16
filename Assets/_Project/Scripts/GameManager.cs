@@ -7,10 +7,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// 1 プレイの進行（プレイ中／クリア／ゲームオーバー）と残り時間を受け持つ（Systems の子に 1 つ置く）。
-/// - 残り時間が 0 になったらクリア、事故（AccidentPredictor.AccidentHappened）が起きたらゲームオーバー
-/// - 終わったら Time.timeScale = 0 で全体を止め、GameEnded で知らせる
-/// - 少し待ってから ResultShown で結果を出す。そのあと Retry（ゲームオーバーのときだけ）か GoToTitle で次へ進む
+/// 1 プレイの進行（プレイ中／終了）と残り時間・スコアを受け持つ（Systems の子に 1 つ置く）。
+/// - 事故（AccidentPredictor.AccidentHappened）が起きたらスコアを加え、事故の地点にマークを出す。ゲームは止めない
+/// - 残り時間が 0 になったら終了。Time.timeScale = 0 で全体を止め、GameEnded で知らせる
+/// - 少し待ってから ResultShown で結果を出す。そのあと Retry か GoToTitle で次へ進む
 ///   （GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
 /// </summary>
 public class GameManager : MonoBehaviour
@@ -18,27 +18,33 @@ public class GameManager : MonoBehaviour
     public enum State
     {
         Playing,  // プレイ中
-        Cleared,  // 時間切れまで耐えた
-        GameOver, // 事故が起きた
+        Finished, // 時間切れで終わった
     }
 
-    /// <summary>ゲームが終わった瞬間に呼ばれる。車の出現・ポータル配置・事故予告はこれで止まる。</summary>
+    /// <summary>ゲームが終わった瞬間に呼ばれる。車の出現・ポータル配置・事故の判定はこれで止まる。</summary>
     public static event Action<State> GameEnded;
 
     /// <summary>結果を出すタイミングで呼ばれる（GameUI が結果画面を出す）。</summary>
     public static event Action<State> ResultShown;
 
     [Header("時間")]
-    [Tooltip("耐える時間（秒）。0 になったらクリア")]
+    [Tooltip("プレイ時間（秒）。0 になったら終わり")]
     [SerializeField] float timeLimit = 60f;
 
-    [Header("終わったときの演出")]
+    [Header("スコア")]
+    [Tooltip("事故 1 件で加える点数")]
+    [SerializeField] int pointsPerAccident = 100;
+
+    [Header("事故の演出")]
     [Tooltip("事故の地点に出すマークの Prefab（子の Visual を拡大縮小して目立たせる）")]
     [SerializeField] GameObject accidentMarkPrefab;
-    [Tooltip("事故が起きてから結果を出すまでの時間（秒）。この間に事故の地点を見せる")]
-    [SerializeField] float gameOverResultDelay = 1.5f;
-    [Tooltip("クリアしてから結果を出すまでの時間（秒）")]
-    [SerializeField] float clearResultDelay = 0.5f;
+    [Tooltip("事故のマークを出しておく時間（秒）")]
+    [SerializeField] float accidentMarkDuration = 0.8f;
+
+    [Header("終わったときの演出")]
+    [Tooltip("終わってから結果を出すまでの時間（秒）")]
+    [FormerlySerializedAs("clearResultDelay")]
+    [SerializeField] float resultDelay = 0.5f;
     [Tooltip("結果を出してから、リトライ／タイトルへの入力を受け付けるまでの時間（秒）。慌てた入力で結果を見ずに進まないように")]
     [FormerlySerializedAs("retryInputDelay")]
     [SerializeField] float choiceInputDelay = 0.3f;
@@ -51,6 +57,9 @@ public class GameManager : MonoBehaviour
 
     /// <summary>残り時間（秒）。GameUI が表示に使う。</summary>
     public float RemainingTime { get; private set; }
+
+    /// <summary>今のスコア。GameUI が表示に使う。</summary>
+    public int Score { get; private set; }
 
     bool canChoose;
 
@@ -72,7 +81,7 @@ public class GameManager : MonoBehaviour
             if (RemainingTime <= 0f)
             {
                 RemainingTime = 0f;
-                End(State.Cleared, clearResultDelay);
+                End();
             }
             return;
         }
@@ -83,10 +92,10 @@ public class GameManager : MonoBehaviour
         else if (keyboard.tKey.wasPressedThisFrame) GoToTitle();
     }
 
-    /// <summary>もう一度遊ぶ（シーンを読み込み直す）。ゲームオーバーのときだけ。GameUI の RETRY ボタンから呼ぶ。</summary>
+    /// <summary>もう一度遊ぶ（シーンを読み込み直す）。GameUI の RETRY ボタンから呼ぶ。</summary>
     public void Retry()
     {
-        if (!canChoose || CurrentState != State.GameOver) return;
+        if (!canChoose) return;
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -101,15 +110,15 @@ public class GameManager : MonoBehaviour
     {
         if (CurrentState != State.Playing) return;
 
+        Score += pointsPerAccident;
         ShowAccidentMark(position);
-        End(State.GameOver, gameOverResultDelay);
     }
 
-    void End(State result, float resultDelay)
+    void End()
     {
-        CurrentState = result;
+        CurrentState = State.Finished;
         Time.timeScale = 0f;
-        GameEnded?.Invoke(result);
+        GameEnded?.Invoke(CurrentState);
         StartCoroutine(ShowResultAfter(resultDelay));
     }
 
@@ -129,13 +138,12 @@ public class GameManager : MonoBehaviour
 
         position.z = 0f;
         GameObject mark = Instantiate(accidentMarkPrefab, position, Quaternion.identity, transform);
+        Destroy(mark, accidentMarkDuration);
 
-        // 止まっている間も動くように SetUpdate(true)（timeScale を無視する）
         Transform visual = mark.transform.Find("Visual");
         if (visual == null) visual = mark.transform;
         visual.DOScale(visual.localScale * 1.3f, 0.15f)
             .SetLoops(-1, LoopType.Yoyo)
-            .SetUpdate(true)
             .SetLink(mark);
     }
 }
