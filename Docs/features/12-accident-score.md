@@ -61,6 +61,10 @@ completed: 2026-11-16
   - 少ないほうに出せないときは、もう一方には回さず少し待つ。直したあとは横 4.6 台 / 縦 4.2 台（走っている台数の平均、ユーザーが計測）
   - 確かめるときは `CarSpawner` の `Log Schedule` をオンにすると、終わったときに縦と横の台数が Console に出る
 - つなぎの車の間隔を 0.65 / 0.55 / 0.55 秒にした（11/16、ユーザーが遊んで調整）。縦と横をそろえて画面の車が減ったぶんを増やした
+- 背景（地面の Tilemap）の赤さを、セクションと山場ではなくスコアで決める（11/16、ユーザーの判断）。`BackgroundTint` が `GameManager.Score` に比例して彩度を上げる
+  - 理由: 新しいルールでは、プレイヤーが稼いだ点の伸びを見せたほうが手応えになる。時間で赤くすると、何もしなくても赤くなる
+  - 一番赤くなる点数（`scoreForMaxRed`）は、ユーザーが遊んで 2000 点にした
+  - 山場の時間帯は、事故の予約の間隔を変える役割だけが残る（いまは山場も通常と同じ間隔なので、効いていない）
 
 ## 関連ファイル
 
@@ -68,6 +72,8 @@ completed: 2026-11-16
 - `Assets/_Project/Scripts/GameUI.cs`（スコア表示・リザルト）
 - `Assets/_Project/Scripts/AccidentPredictor.cs`（事故の判定を続ける・予告のオフ）
 - `Assets/_Project/Scripts/Car.cs`（`Crash`）
+- `Assets/_Project/Scripts/BackgroundTint.cs`（スコアで背景を赤くする）
+- `Assets/_Project/Scripts/CarSpawner.cs`（縦と横の車の数をそろえる）
 - `Assets/_Project/Prefabs/AccidentMark.prefab`・`ScorePopup.prefab`
 
 ## 未決・TODO
