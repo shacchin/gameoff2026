@@ -1,7 +1,7 @@
 ---
-status: 進行中
+status: 完了
 started: 2026-11-16
-completed:
+completed: 2026-11-16
 ---
 
 # 事故でスコアを稼ぐ（ルール転換）
@@ -40,15 +40,33 @@ completed:
 
 ## 決定事項
 
-- 
+- 事故を起こした車は、止めて見せずにすぐ消す（11/16、ユーザーの判断）
+  - 事故の瞬間に判定から外すので、ほかの車がぶつかって連鎖することはない
+- 1 台が数える事故は 1 件だけ。3 台が同時に重なったら、2 台で 1 件、残りの 1 台はほかの車との組で調べる（11/16）
+- 事故予告（「！」と点滅）は出さない（11/16、ユーザーの判断）。コードは残し、`AccidentPredictor` の `showWarning` で切り替える
+  - オフのときは「今ぶつかっているか」だけを調べる（未来の位置を計算しない）
+- 結果画面は RETRY と TITLE を常に両方出す（11/16、ユーザーの判断）。ゲームオーバーがなくなり、RETRY を出す場面がなくなるため
+- 「+100」は描画順 220（マーク帯域、事故予告の「！」より手前）
 
 ## 関連ファイル
 
 - `Assets/_Project/Scripts/GameManager.cs`（進行・スコア）
 - `Assets/_Project/Scripts/GameUI.cs`（スコア表示・リザルト）
 - `Assets/_Project/Scripts/AccidentPredictor.cs`（事故の判定を続ける・予告のオフ）
-- `Assets/_Project/Prefabs/AccidentMark.prefab`
+- `Assets/_Project/Scripts/Car.cs`（`Crash`）
+- `Assets/_Project/Prefabs/AccidentMark.prefab`・`ScorePopup.prefab`
 
 ## 未決・TODO
 
 - [ ] 事故予告を出さない状態で遊んで、狙いどころが分かるか確かめる（分かりにくければ別の見せ方を考える）
+
+## 実装メモ
+
+- 変更: `AccidentPredictor` が終わるまで事故を調べ続け、事故の 2 台を `Car.Crash` で消す。`GameManager` が `Score` を持ち、事故マーク（一定時間で破棄）と `ScorePopup` を出す。`GameUI` はスコアと最終スコアを表示するだけ
+- 設計判断: 消すのは全部の組を調べ終わってから（`crashed` 配列で印を付ける）。`Crash` は `SetActive(false)` してから `Destroy` し、同じフレームのうちに `Car.All` から外す
+- 設計判断: `ScorePopup` にはスクリプトを付けず、文字（`+点数`）と動きは `GameManager.ShowScorePopup` が付ける。薄くするのは `DOTween.To` で `TMP_Text.alpha` を動かす（DOTween の TextMeshPro 用モジュールに頼らない）
+- 設計判断: `GameManager.State` は残して値を `Playing` / `Finished` にした。`GameEnded` を購読している側（CarSpawner など）の引数を変えずに済むため
+- 注意点: `ScorePopup` の `Visual` は 3D Object の TextMeshPro。UI 版にすると Canvas の外では表示されない
+- 注意点: 事故マークとポップアップは timeScale に従うので、60 秒で止まった瞬間に出ていたものは結果画面の後ろに止まったまま残る
+- 注意点: 予告を戻すなら `showWarning` をオンにする（`GameTuning.warningTime` を使う）
+- 動作確認: エディタで Play し、事故で車が消えてスコアが加わる、ゲームが止まらない、60 秒で最終スコアと RETRY / TITLE が出る、「+100」が浮かんで消えることをユーザーが確認した（11/16）。WebGL ビルドは未確認
