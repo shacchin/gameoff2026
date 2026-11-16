@@ -18,14 +18,14 @@ MonoBehaviour:
   sections:
   - label: "\u7B2C1\u5E55 \u5C0E\u5165"
     duration: 20
-    fillerInterval: 1.4
+    fillerInterval: 1
     firstAccidentDelay: 5
-    accidentIntervalMin: 3.5
-    accidentIntervalMax: 4.5
+    accidentIntervalMin: 8
+    accidentIntervalMax: 10
     peakStart: 10
     peakEnd: 15
-    peakAccidentIntervalMin: 2.5
-    peakAccidentIntervalMax: 3
+    peakAccidentIntervalMin: 8
+    peakAccidentIntervalMax: 10
     simultaneousChance: 0
     chainChance: 0
     chainGap: 0.8
@@ -33,31 +33,31 @@ MonoBehaviour:
     valleyFillerInterval: 3
   - label: "\u7B2C2\u5E55 \u5C55\u958B"
     duration: 20
-    fillerInterval: 1.2
-    firstAccidentDelay: 3
-    accidentIntervalMin: 3
-    accidentIntervalMax: 4
+    fillerInterval: 0.75
+    firstAccidentDelay: 4
+    accidentIntervalMin: 7
+    accidentIntervalMax: 9
     peakStart: 9
     peakEnd: 15
-    peakAccidentIntervalMin: 2.2
-    peakAccidentIntervalMax: 2.8
-    simultaneousChance: 0.25
+    peakAccidentIntervalMin: 7
+    peakAccidentIntervalMax: 9
+    simultaneousChance: 0
     chainChance: 0
     chainGap: 0.8
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
   - label: "\u7B2C3\u5E55 \u30AF\u30E9\u30A4\u30DE\u30C3\u30AF\u30B9"
     duration: 20
-    fillerInterval: 1.1
-    firstAccidentDelay: 1.5
-    accidentIntervalMin: 2
-    accidentIntervalMax: 2.8
+    fillerInterval: 0.55
+    firstAccidentDelay: 3
+    accidentIntervalMin: 6
+    accidentIntervalMax: 8
     peakStart: 8
     peakEnd: 15
-    peakAccidentIntervalMin: 1.4
-    peakAccidentIntervalMax: 2
-    simultaneousChance: 0.35
-    chainChance: 0.3
+    peakAccidentIntervalMin: 6
+    peakAccidentIntervalMax: 8
+    simultaneousChance: 0
+    chainChance: 0
     chainGap: 0.7
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
