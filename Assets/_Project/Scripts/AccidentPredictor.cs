@@ -5,19 +5,21 @@ using UnityEngine;
 /// <summary>
 /// 車どうしの衝突（事故）と、これから起きる事故の予告を受け持つ。
 /// 走っている車の未来の位置を経路から一定間隔で計算し、当たり判定の四角が重なる組を探す。
-/// - 今（t = 0）重なっている組 → 事故。AccidentHappened で位置を知らせる
-/// - warningTime 秒以内に重なる組 → 予告。ぶつかる地点に「！」を出し、2 台を点滅させる
-/// 別次元にいる車は調べないので、どの車ともぶつからない。
+/// - 今（t = 0）重なっている組 → 事故。AccidentHappened で位置を知らせ、2 台をすぐ消す（Car.Crash）
+/// - warningTime 秒以内に重なる組 → 予告。ぶつかる地点に「！」を出し、2 台を点滅させる（showWarning がオンのときだけ）
+/// 別次元にいる車は調べないので、どの車ともぶつからない。事故が起きても、ゲームが終わるまで調べ続ける。
 /// </summary>
 public class AccidentPredictor : MonoBehaviour
 {
-    /// <summary>事故が起きたときに、事故の位置を渡して呼ばれる（05 ゲーム進行が受け取る）。</summary>
+    /// <summary>事故が起きるたびに、事故の位置を渡して呼ばれる（05 ゲーム進行が受け取る）。</summary>
     public static event Action<Vector3> AccidentHappened;
 
     [Tooltip("何秒先までの事故を予告するか（warningTime）はここから読む")]
     [SerializeField] GameTuning tuning;
 
     [Header("予告")]
+    [Tooltip("事故の予告（「！」と点滅）を出すか。事故でスコアを稼ぐルール（12）では出さない")]
+    [SerializeField] bool showWarning = false;
     [Tooltip("未来の位置を調べる間隔（秒）。小さいほど正確で重い")]
     [SerializeField] float step = 0.05f;
     [Tooltip("予告のときだけ当たり判定を広げる量（マス）。かすめるだけの組も予告したいときに増やす")]
@@ -35,7 +37,7 @@ public class AccidentPredictor : MonoBehaviour
     readonly List<Car> cars = new List<Car>();
     readonly List<GameObject> marks = new List<GameObject>();
     Pose[] poses = new Pose[0]; // [車の番号 * stepCount + 時刻の番号]
-    bool accidentHappened;
+    bool[] crashed = new bool[0]; // [車の番号] このフレームで事故を起こしたか
 
     void Awake()
     {
@@ -52,8 +54,6 @@ public class AccidentPredictor : MonoBehaviour
     // 車の Update で位置が進んだあとに調べたいので LateUpdate
     void LateUpdate()
     {
-        if (accidentHappened) return;
-
         cars.Clear();
         foreach (var car in Car.All)
         {
@@ -61,20 +61,30 @@ public class AccidentPredictor : MonoBehaviour
             if (car.IsDriving) cars.Add(car);
         }
 
-        int stepCount = Mathf.FloorToInt(tuning.warningTime / step) + 2; // 先頭の t = 0 を含む
+        // 予告を出さないなら、今（t = 0）だけ調べれば足りる
+        int stepCount = showWarning ? Mathf.FloorToInt(tuning.warningTime / step) + 2 : 1; // 先頭の t = 0 を含む
         CalculatePoses(stepCount);
+
+        if (crashed.Length < cars.Count) crashed = new bool[cars.Count];
+        Array.Clear(crashed, 0, cars.Count);
 
         int markCount = 0;
         for (int a = 0; a < cars.Count; a++)
         {
+            if (crashed[a]) continue;
             for (int b = a + 1; b < cars.Count; b++)
             {
+                if (crashed[b]) continue;
                 if (IsOverlapping(a, b, 0, stepCount, 0f))
                 {
-                    OnAccident(Midpoint(a, b, 0, stepCount));
-                    return;
+                    // 1 台が起こす事故は 1 件だけ（3 台が同時に重なったら、残りの 1 台はほかの車との組で調べる）
+                    crashed[a] = true;
+                    crashed[b] = true;
+                    AccidentHappened?.Invoke(Midpoint(a, b, 0, stepCount));
+                    break;
                 }
 
+                if (!showWarning) continue;
                 int hitStep = FindFirstOverlap(a, b, stepCount);
                 if (hitStep < 0) continue;
 
@@ -86,6 +96,12 @@ public class AccidentPredictor : MonoBehaviour
 
         // 今回使わなかったマークは隠す
         for (int i = markCount; i < marks.Count; i++) marks[i].SetActive(false);
+
+        // 調べ終わってから消す（消すと Car.All から外れるため）
+        for (int i = 0; i < cars.Count; i++)
+        {
+            if (crashed[i]) cars[i].Crash();
+        }
     }
 
     void CalculatePoses(int stepCount)
@@ -154,16 +170,7 @@ public class AccidentPredictor : MonoBehaviour
         marks[index].SetActive(true);
     }
 
-    void OnAccident(Vector3 position)
-    {
-        accidentHappened = true;
-        ClearWarnings();
-
-        Debug.Log($"事故発生: {position}");
-        AccidentHappened?.Invoke(position);
-    }
-
-    // クリアでもゲームオーバーでも、終わったら予告を消して調べるのをやめる
+    // 終わったら予告を消して調べるのをやめる
     void OnGameEnded(GameManager.State result)
     {
         ClearWarnings();

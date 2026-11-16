@@ -121,6 +121,16 @@ public class Car : MonoBehaviour
         SetState(State.Shifted);
     }
 
+    /// <summary>
+    /// 事故で消す。すぐ非表示にして Car.All からも外す（Destroy だけだとフレームの終わりまで残り、
+    /// 同じフレームのほかの処理から走っている車に見えてしまうため）。
+    /// </summary>
+    public void Crash()
+    {
+        gameObject.SetActive(false);
+        Destroy(gameObject);
+    }
+
     /// <summary>別次元から戻す（飛ばした位置からまた走り出す）。</summary>
     public void ShiftIn()
     {
