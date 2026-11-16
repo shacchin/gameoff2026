@@ -4,7 +4,8 @@ using UnityEngine;
 /// <summary>
 /// セクション（GameTuning）の設定に沿って車を出す。出す車は 2 種類。
 /// - 事故の車: 「この時刻に事故を起こす」と予約し、交差する 2 経路の車を、その時刻にちょうど交差点で出会うよう逆算して出す
-/// - つなぎの車: 一定の間隔で、ほかのどの車（予約済みでまだ出ていない車・別次元から戻る車も含む）ともぶつからない経路にだけ出す
+/// - つなぎの車: 一定の間隔で、ほかのどの車（予約済みでまだ出ていない車・別次元から戻る車も含む）ともぶつからない経路にだけ出す。
+///   縦と横の道路のうち、いま車が少ないほうに出す（横の道路は長く、同じ頻度で出すと横ばかり車が見えるため）
 /// こうすると、事故はすべて予約したものになり、事故の間隔・同時に起きる数・谷（事故なし）をセクションごとに決められる。
 /// ただしプレイヤーがずらした車が起こす事故は防がない（それはプレイヤーの判断の結果）。
 /// routes が空なら、子オブジェクトにある Route を全部使う（Routes オブジェクトに付けると楽）。
@@ -32,7 +33,7 @@ public class CarSpawner : MonoBehaviour
     [SerializeField] float fillerRetryDelay = 0.1f;
 
     [Header("確認用")]
-    [Tooltip("事故を予約するたびに Console に出す")]
+    [Tooltip("事故を予約するたびに Console に出す。ゲームが終わったら、縦と横の道路に出した台数・見えていた台数の平均も出す")]
     [SerializeField] bool logSchedule = false;
 
     /// <summary>
@@ -65,6 +66,11 @@ public class CarSpawner : MonoBehaviour
     float nextAccidentTry;    // 予約に失敗したあと、次に試す時刻
     float nextFillerTime;     // 次につなぎの車を出す時刻
 
+    // 確認用（logSchedule）: 縦と横の道路の車の数
+    int spawnedHorizontal, spawnedVertical;     // 出した台数
+    float carSecondsHorizontal, carSecondsVertical; // 走っていた台数 × 秒（平均の台数を出すため）
+    float sampledSeconds;
+
     /// <summary>車が走る経路の一覧。</summary>
     public IReadOnlyList<Route> Routes => routes;
 
@@ -96,13 +102,18 @@ public class CarSpawner : MonoBehaviour
     // ゲームが終わったら車を出さない（timeScale = 0 でも止まるが、終わったことをはっきりさせる）
     void OnEnable() => GameManager.GameEnded += OnGameEnded;
     void OnDisable() => GameManager.GameEnded -= OnGameEnded;
-    void OnGameEnded(GameManager.State result) => enabled = false;
+    void OnGameEnded(GameManager.State result)
+    {
+        enabled = false;
+        if (logSchedule) LogBalance();
+    }
 
     void Update()
     {
         SpawnPending();
         UpdateAccidents();
         UpdateFiller();
+        if (logSchedule) SampleBalance();
     }
 
     // ---- 予約した車を出す ----
@@ -124,6 +135,9 @@ public class CarSpawner : MonoBehaviour
     {
         Car car = Instantiate(carPrefab, transform);
         car.Init(route, tuning.carSpeed, startDistance);
+
+        if (IsHorizontal(route)) spawnedHorizontal++;
+        else spawnedVertical++;
     }
 
     // ---- 事故の予約 ----
@@ -235,11 +249,23 @@ public class CarSpawner : MonoBehaviour
         }
     }
 
+    /// <summary>
+    /// 縦と横の道路のうち、いま車が少ないほうに 1 台出す。
+    /// 少ないほうに出せないときは、もう一方には回さず false を返して少し待つ。
+    /// 回してしまうと、車の多い向きがさらに増え、少ない向きはますますぶつからずに出せる隙間がなくなって、偏りが広がるため。
+    /// </summary>
     bool TrySpawnFiller()
     {
         CollectOthers();
+
+        CountCars(out int horizontal, out int vertical);
+        bool spawnHorizontal = horizontal == vertical ? Random.value < 0.5f : horizontal < vertical;
+
         routeOrder.Clear();
-        routeOrder.AddRange(routes);
+        foreach (var route in routes)
+        {
+            if (IsHorizontal(route) == spawnHorizontal) routeOrder.Add(route);
+        }
         Shuffle(routeOrder);
 
         foreach (var route in routeOrder)
@@ -251,6 +277,21 @@ public class CarSpawner : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    /// <summary>
+    /// 縦と横の道路にいる車の数（別次元にいる車も、戻ってくるので数える）。
+    /// 予約した事故の車はまだ出ていなくても数えない（縦 1 台・横 1 台の組なので、差には影響しない）。
+    /// </summary>
+    static void CountCars(out int horizontal, out int vertical)
+    {
+        horizontal = 0;
+        vertical = 0;
+        foreach (var car in Car.All)
+        {
+            if (IsHorizontal(car.Route)) horizontal++;
+            else vertical++;
+        }
     }
 
     // ---- ぶつからないかの確認 ----
@@ -321,6 +362,37 @@ public class CarSpawner : MonoBehaviour
         t.route.Evaluate(d, out Vector3 p, out direction);
         position = p;
         return true;
+    }
+
+    // ---- 確認用（縦と横の車の数） ----
+
+    void SampleBalance()
+    {
+        int horizontal = 0, vertical = 0;
+        foreach (var car in Car.All)
+        {
+            if (!car.IsDriving) continue;
+            if (IsHorizontal(car.Route)) horizontal++;
+            else vertical++;
+        }
+        carSecondsHorizontal += horizontal * Time.deltaTime;
+        carSecondsVertical += vertical * Time.deltaTime;
+        sampledSeconds += Time.deltaTime;
+    }
+
+    void LogBalance()
+    {
+        if (sampledSeconds <= 0f) return;
+        Debug.Log($"出した台数: 横 {spawnedHorizontal} / 縦 {spawnedVertical}　" +
+                  $"走っていた台数の平均: 横 {carSecondsHorizontal / sampledSeconds:0.0} / 縦 {carSecondsVertical / sampledSeconds:0.0}");
+    }
+
+    /// <summary>横の道路か（始点から終点までの向きが横寄りか）。</summary>
+    static bool IsHorizontal(Route route)
+    {
+        route.Evaluate(0f, out Vector3 start, out _);
+        route.Evaluate(route.Length, out Vector3 end, out _);
+        return Mathf.Abs(end.x - start.x) >= Mathf.Abs(end.y - start.y);
     }
 
     // ---- 準備 ----
