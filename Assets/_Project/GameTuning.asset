@@ -13,7 +13,7 @@ MonoBehaviour:
   m_Name: GameTuning
   m_EditorClassIdentifier: Assembly-CSharp::GameTuning
   warningTime: 2
-  shiftDuration: 2
+  shiftDuration: 1
   carSpeed: 3.5
   sections:
   - label: "\u7B2C1\u5E55 \u5C0E\u5165"
