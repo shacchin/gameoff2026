@@ -3,7 +3,8 @@ using UnityEngine;
 
 /// <summary>
 /// 経路に沿って一定の速度で進む車。物理演算は使わず、経路上の距離を毎フレーム進めて位置を決める。
-/// 見た目（スプライト）は右向き（+X）で描いておく。進行方向に合わせて回転させる。
+/// ルートを進行方向に回転させる（右向き = +X が角度 0）。見た目は、斜めから見た絵なら Visual の DirectionalSprite が
+/// 向きに合ったコマに差し替える。DirectionalSprite がない絵は、右向きで描いておけばルートと一緒に回る。
 /// 当たり判定は Collider2D を使わず、size の四角どうしの重なりを AccidentPredictor が計算する。
 /// </summary>
 public class Car : MonoBehaviour
@@ -136,9 +137,11 @@ public class Car : MonoBehaviour
     /// <summary>
     /// 車の絵の写しを root の子 `Visual` として作る（吸い込み演出や、戻ってくるゴーストに使う）。
     /// 色は点滅していない元の色にする。sprite.color を写すと、予告の点滅中の警告色を写してしまうため。
+    /// 向きは今の見た目と同じにする（回転はワールドで写す。向きでコマを差し替える絵は回っていないため）。
+    /// followDirection が true なら、写しも root の向きに合わせてコマを差し替え続ける（経路を走るゴースト用）。
     /// 絵がなければ null を返す。
     /// </summary>
-    public SpriteRenderer CreateVisualCopy(Transform root, int sortingOrder)
+    public SpriteRenderer CreateVisualCopy(Transform root, int sortingOrder, bool followDirection = false)
     {
         SpriteRenderer source = GetComponentInChildren<SpriteRenderer>(true);
         if (source == null) return null;
@@ -146,7 +149,7 @@ public class Car : MonoBehaviour
         var visual = new GameObject("Visual").transform;
         visual.SetParent(root, false);
         visual.localPosition = source.transform.localPosition;
-        visual.localRotation = source.transform.localRotation;
+        visual.rotation = source.transform.rotation;
         visual.localScale = source.transform.localScale;
 
         var sprite = visual.gameObject.AddComponent<SpriteRenderer>();
@@ -157,6 +160,14 @@ public class Car : MonoBehaviour
         sprite.sharedMaterial = source.sharedMaterial;
         sprite.sortingLayerID = source.sortingLayerID;
         sprite.sortingOrder = sortingOrder;
+
+        var directional = source.GetComponent<DirectionalSprite>();
+        if (followDirection && directional != null)
+        {
+            var copy = visual.gameObject.AddComponent<DirectionalSprite>();
+            copy.CopyFrom(directional);
+            copy.Apply();
+        }
         return sprite;
     }
 

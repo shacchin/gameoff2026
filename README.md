@@ -25,6 +25,23 @@ DOTween は Asset Store のライセンスの都合でリポジトリに含め�
 
 設定ファイル `Assets/Resources/DOTweenSettings.asset` はリポジトリに含めているので、Preferences の設定はやり直さなくてよい。
 
+### 外部の絵素材
+
+次の素材はライセンスの都合でリポジトリに含めていない（`.gitignore` で除外）。clone 直後は、これらを使っている Prefab やタイルの絵が抜けて表示される。
+
+- `Assets/_Project/Art/TopDownVehicles/`（車）
+- `Assets/_Project/Art/TopDownCity/`（街）
+
+インポート設定（`.meta`）も含まれないので、入れ直したら次の設定をやり直す。
+
+**TopDownVehicles（今はブラウンセダンだけ使用）**
+
+1. `Brown_SEDAN_CLEAN_All_000-sheet.png` を次の設定にして Apply
+   - Texture Type: `Sprite (2D and UI)` / Sprite Mode: `Multiple`
+   - Pixels Per Unit: `100` / Filter Mode: `Point (no filter)` / Compression: `None`
+2. Sprite Editor で `Slice` → Type `Grid By Cell Count`、`7` × `7`、Pivot `Center` → Slice → Apply。49 個目の空のコマができたら消す
+3. `Prefabs/Car.prefab` の `Visual` の Sprite Renderer にコマを 1 つ入れ、`DirectionalSprite` の右クリックメニュー「シートからコマを読み込む」を実行する
+
 ## ドキュメント
 
 - 機能ごとの仕様: `Docs/features/`

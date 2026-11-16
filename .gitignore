@@ -80,3 +80,9 @@ CLAUDE.local.md
 # DOTween (Asset Store 版。ライセンス上リポジトリに含めない。導入手順は README.md)
 /[Aa]ssets/Plugins/Demigiant/
 /[Aa]ssets/Plugins/Demigiant.meta
+
+# 外部の絵素材（ライセンス上リポジトリに含めない。入れ直す手順は README.md）
+/[Aa]ssets/_Project/Art/TopDownVehicles/
+/[Aa]ssets/_Project/Art/TopDownVehicles.meta
+/[Aa]ssets/_Project/Art/TopDownCity/
+/[Aa]ssets/_Project/Art/TopDownCity.meta

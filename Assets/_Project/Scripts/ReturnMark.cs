@@ -102,7 +102,7 @@ public class ReturnMark : MonoBehaviour
         ghost = new GameObject("ReturnGhost").transform;
         ghost.SetParent(transform.parent, false);
 
-        ghostSprite = car.CreateVisualCopy(ghost, ghostSortingOrder);
+        ghostSprite = car.CreateVisualCopy(ghost, ghostSortingOrder, followDirection: true);
         if (ghostSprite == null) return;
 
         Color c = ghostSprite.color;
