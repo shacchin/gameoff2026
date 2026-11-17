@@ -1,6 +1,5 @@
 using System;
 using System.Collections.Generic;
-using DG.Tweening;
 using UnityEngine;
 
 /// <summary>
@@ -21,12 +20,6 @@ public class Portal : MonoBehaviour
     [SerializeField] float captureRadius = 0.3f;
     [Tooltip("開くまでの間、見た目に掛ける透明度")]
     [SerializeField] float openingAlpha = 0.35f;
-
-    [Header("吸い込んだあと閉じる演出")]
-    [Tooltip("閉じるまでの時間（秒）")]
-    [SerializeField] float closeDuration = 0.3f;
-    [Tooltip("閉じる前に一瞬ふくらむ大きさ（倍）")]
-    [SerializeField] float closePunchScale = 1.4f;
 
     float openDelay;
     float lifetime;
@@ -103,31 +96,7 @@ public class Portal : MonoBehaviour
         }
 
         CarShifted?.Invoke(car, transform.position);
-        CloseAndDestroy();
-    }
-
-    /// <summary>
-    /// 吸い込んだあと、ポータルを一瞬ふくらませてから閉じて消す。
-    /// 先に enabled = false にして All から外すので、閉じている間にもう次のポータルを置ける。
-    /// </summary>
-    void CloseAndDestroy()
-    {
-        enabled = false;
-
-        Transform visual = transform.Find("Visual");
-        if (visual == null)
-        {
-            Destroy(gameObject);
-            return;
-        }
-
-        Vector3 scale = visual.localScale;
-        DOTween.Sequence()
-            .Append(visual.DOScale(scale * closePunchScale, closeDuration * 0.35f).SetEase(Ease.OutQuad))
-            .Append(visual.DOScale(Vector3.zero, closeDuration * 0.65f).SetEase(Ease.InBack))
-            .Join(visual.DORotate(new Vector3(0f, 0f, -180f), closeDuration * 0.65f, RotateMode.LocalAxisAdd))
-            .OnComplete(() => Destroy(gameObject))
-            .SetLink(gameObject);
+        Destroy(gameObject);
     }
 
     void UpdateLook()

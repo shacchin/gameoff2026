@@ -36,13 +36,14 @@ completed: 2026-11-08
   - → 11/16 からはスコアで決めるので、減らないことはそのまま保たれる（スコアは減らない）。セクションごとのベース色の設定はなくした
 - 吸い込み演出は、車の絵の写し（ゴースト）を回しながら縮めてポータルの中心へ動かす。本物の車は吸い込んだ瞬間に見えなくなる（04 のまま）
 - ポータルは吸い込んだあと、一瞬ふくらんでから閉じる。閉じ始めた時点で置ける数に戻す
+  - → 11/17 に閉じる演出は消し、吸い込んだ瞬間にポータルを消すようにした。理由: ポータルを本番用のアニメーション付きドット絵にしたら、ふくらんで回りながら縮む動きが絵と合わず違和感が出た
 - SE は毎回ピッチを少し変える（連続で飛ばしても単調にしない）
 
 ## 関連ファイル
 
 - `Assets/_Project/Scripts/ShiftFeedback.cs`（ゴースト・SE。Systems の子）
 - `Assets/_Project/Scripts/BackgroundTint.cs`（背景色。Systems の子）
-- `Assets/_Project/Scripts/Portal.cs`（`CarShifted` イベント、閉じる演出）
+- `Assets/_Project/Scripts/Portal.cs`（`CarShifted` イベント）
 
 ## 未決・TODO
 
@@ -52,10 +53,9 @@ completed: 2026-11-08
 
 ## 実装メモ
 
-- 変更: `Portal.CarShifted`（static イベント）を `ShiftFeedback`（Systems）が受けてゴーストと SE を出す。ポータル自身の閉じる演出は `Portal.CloseAndDestroy`。背景は `BackgroundTint`（Systems）が `WaveDirector` を見て Tilemap の Color を毎フレーム寄せる
+- 変更: `Portal.CarShifted`（static イベント）を `ShiftFeedback`（Systems）が受けてゴーストと SE を出す。ポータル自身の閉じる演出（`Portal.CloseAndDestroy`）は 11/17 に消した。背景は `BackgroundTint`（Systems）が `WaveDirector` を見て Tilemap の Color を毎フレーム寄せる
 - 設計判断: ゴーストは Prefab にせず、吸い込んだときにコードで作る（ルートと `Visual` は分ける）。車の見た目を写すだけなので、Prefab を別に保つ手間に見合わない
 - 設計判断: 背景の彩度は `reachedSaturation` で「これまでに目指した一番高い値」を覚え、下げない。ベース色の設定を間違えても後戻りしない
-- 注意点: ポータルは閉じ始めた時点で `enabled = false`（OnDisable で `Portal.All` から外れる）。閉じる演出の間に `Update` を動かすと二重に吸い込むので、戻さないこと
 - 注意点: `BackgroundTint` の色を変えたあとでも、シーンに付いている値が優先される。初期値を変えたら、インスペクターで Reset するか値を直す
 - 注意点: SE は ShiftFeedback の AudioSource で鳴らす（Play On Awake はオフ）。最初の音はポータルを置くクリックのあとなので、WebGL の制約には当たらない
 - 動作確認: エディタで吸い込み演出・SE・背景色の変わり方をユーザーが確認した（11/8）。WebGL ビルドは未確認
