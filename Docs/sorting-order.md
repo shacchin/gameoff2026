@@ -12,28 +12,27 @@
 |---|---|---|
 | 背景 | -300〜-201 | マップの外の背景、背景のヒーロー戦 |
 | 地面 | -200〜-101 | Tilemap（地面・道路） |
-| 路面 | -100〜-1 | 路面に置くもの（ポータル、ブレーキ跡など） |
+| 路面 | -100〜-1 | 路面に置くもの（ポータルの入口・出口、ブレーキ跡など） |
 | 車 | 0〜99 | 車 |
 | 車の上の演出 | 100〜199 | 事故の爆発、ニアミスの火花など |
-| マーク | 200〜299 | 車の上に出す記号（復帰マーク、事故予告の「！」） |
+| マーク | 200〜299 | 車の上に出す記号（事故予告の「！」） |
 
 - 帯域の先頭（-200, -100, 0, 100, 200）をそのグループの基準にし、同じ帯域の中で前後させたいときは +1, +2… と足す
-- 1 つの Prefab の中に絵が複数あるとき（例: 復帰マークのアイコンと残り秒数の文字）は、同じ値にしない。奥のものから +1 ずつ並べる
+- 1 つの Prefab の中に絵が複数あるとき（例: アイコンと文字）は、同じ値にしない。奥のものから +1 ずつ並べる
   - 理由: 同じ値だと、どちらが手前に出るかが決まらず、フレームごとに入れ替わることがある
-- マークの中では、事故予告を復帰マークより手前にする
-  - 理由: 事故予告のほうが見落とすと困る
+- 戻る位置の目印（`ReturnMark`、ポータルの出口）は車より奥に描く
+  - 理由: 約 0.8 マスの円なので、車より手前だと戻る位置を通る車やゴーストが隠れ、ぶつけるタイミングが読みにくい
 
 ## 現在の割り当て
 
 | オブジェクト | 設定する場所 | Order in Layer |
 |---|---|---|
 | `Grid > Map`（Tilemap） | シーン / Tilemap Renderer | -200 |
-| `Portal` | Prefab / `Visual` の Sprite Renderer | -100 |
+| `Portal`（入口） | Prefab / `Visual` の Sprite Renderer | -100 |
+| `ReturnMark`（出口） | Prefab / `Visual` の Sprite Renderer | -99 |
 | `ReturnGhost`（戻ってくる車の半透明の写し） | `ReturnMark` の Ghost Sorting Order（実行時に作る） | -1 |
 | `Car` | Prefab / `Visual` の Sprite Renderer | 0 |
 | `AccidentMark`（事故の地点） | Prefab / `Visual` の Sprite Renderer | 100 |
 | `ShiftGhost`（吸い込まれる車の写し） | `ShiftFeedback` の Ghost Sorting Order（実行時に作る） | 100 |
-| `ReturnMark` のアイコン | Prefab / `Visual` の Sprite Renderer | 200 |
-| `ReturnMark` の残り秒数（既定では非表示。10 を参照） | Prefab / `TimeText` の TextMeshPro（Extra Settings） | 201 |
 | `WarningMark` | Prefab / `Visual` の Sprite Renderer | 210 |
 | `ScorePopup`（事故の「+100」） | Prefab / `Visual` の TextMeshPro（Extra Settings） | 220 |
