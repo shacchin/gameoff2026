@@ -43,11 +43,10 @@ completed: 2026-11-08
 - `Assets/_Project/Scripts/ShiftFeedback.cs`（ゴースト・SE。Systems の子）
 - `Assets/_Project/Scripts/BackgroundTint.cs`（背景色。Systems の子）
 - `Assets/_Project/Scripts/Portal.cs`（`CarShifted` イベント、閉じる演出）
-- `Assets/_Project/Audio/se_shift.wav`（仮の SE。Node で合成）
 
 ## 未決・TODO
 
-- [ ] SE・演出を本番の素材に差し替える
+- [ ] SE・演出を本番の素材に差し替える（仮の SE `se_shift.wav` は 11/17 に削除した。今は `shiftClip` が空なので音は鳴らない）
 - [ ] 背景の色味と山場の強さを遊びながら調整する
 - [ ] WAVE の区切り表示を入れるか（背景色だけで区切りが伝わるか、遊んでから決める。`WaveDirector.SectionStarted` を使えば足せる）
 

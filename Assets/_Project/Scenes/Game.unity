@@ -702,7 +702,7 @@ MonoBehaviour:
   suckDuration: 0.25
   suckSpin: 360
   ghostSortingOrder: 100
-  shiftClip: {fileID: 8300000, guid: 1c8e68290b3bc0048aca2cea6007ff59, type: 3}
+  shiftClip: {fileID: 0}
   volume: 0.8
   pitchJitter: 0.08
   voiceCount: 3
