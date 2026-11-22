@@ -1650,6 +1650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveDirector
   tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
+  gameManager: {fileID: 0}
   logSection: 1
 --- !u!1 &1216745062
 GameObject:

@@ -23,7 +23,7 @@ public class GameTuning : ScriptableObject
     [Tooltip("ゲーム開始から最初の警察車両を出すまでの秒数。2 台目からは各セクションの間隔で出す")]
     public float policeFirstDelay = 8f;
 
-    [Header("セクション（上から順に進む。最後のセクションは、終わったらずっと繰り返す）")]
+    [Header("セクション（スコアが scoreToEnter に届いたら、今の周期が終わったところで次へ進む。届くまでは同じセクションを繰り返す）")]
     public Section[] sections =
     {
         new Section
@@ -42,6 +42,7 @@ public class GameTuning : ScriptableObject
         new Section
         {
             label = "第2幕 展開",
+            scoreToEnter = 600,
             fillerInterval = 1.2f,
             firstAccidentDelay = 1.5f,
             accidentIntervalMin = 2.5f, accidentIntervalMax = 3.5f,
@@ -55,6 +56,7 @@ public class GameTuning : ScriptableObject
         new Section
         {
             label = "第3幕 クライマックス",
+            scoreToEnter = 1500,
             fillerInterval = 1.1f,
             firstAccidentDelay = 1.5f,
             accidentIntervalMin = 2f, accidentIntervalMax = 2.8f,
@@ -68,7 +70,7 @@ public class GameTuning : ScriptableObject
     };
 
     /// <summary>
-    /// 1 セクションの設定。時刻はすべて「そのセクションが始まってからの秒数」。
+    /// 1 セクションの設定。時刻はすべて「その周期が始まってからの秒数」。
     /// 「事故」は CarSpawner が予約して起こす事故（交差する 2 台を、決めた時刻に交差点で出会わせる）。
     /// 「つなぎの車」は、ほかのどの車ともぶつからない場合だけ出す車。
     /// </summary>
@@ -77,7 +79,9 @@ public class GameTuning : ScriptableObject
     {
         [Tooltip("インスペクターで見分けるための名前（ゲームには出ない）")]
         public string label;
-        [Tooltip("このセクションの長さ（秒）")]
+        [Tooltip("このセクションに入るのに必要なスコア。届いたら、今の周期が終わったところで入る（最初のセクションでは使わない）")]
+        public int scoreToEnter;
+        [Tooltip("1 周期の長さ（秒）。山場・谷はこの周期の中の時間帯で、次のセクションに進むまで繰り返す")]
         public float duration = 20f;
 
         [Header("つなぎの車")]
@@ -85,7 +89,7 @@ public class GameTuning : ScriptableObject
         public float fillerInterval = 1.2f;
 
         [Header("事故の予約")]
-        [Tooltip("セクションが始まってから最初の事故までの秒数")]
+        [Tooltip("周期が始まってから最初の事故までの秒数")]
         public float firstAccidentDelay = 2f;
         [Tooltip("事故と事故の間隔（秒）。この範囲からランダムに選ぶ")]
         public float accidentIntervalMin = 3f;
@@ -105,8 +109,8 @@ public class GameTuning : ScriptableObject
         [Tooltip("連鎖のときの事故の間隔（秒）")]
         public float chainGap = 0.8f;
 
-        [Header("谷（セクションの終わり。事故を予約せず、つなぎの車もゆっくり出す）")]
-        [Tooltip("セクションの終わりの何秒を谷にするか")]
+        [Header("谷（周期の終わり。事故を予約せず、つなぎの車もゆっくり出す）")]
+        [Tooltip("周期の終わりの何秒を谷にするか")]
         public float valleyDuration = 3.5f;
         [Tooltip("谷の間のつなぎの車の間隔（秒）")]
         public float valleyFillerInterval = 2.5f;

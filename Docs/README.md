@@ -33,7 +33,7 @@
 | [04-portal.md](features/04-portal.md) | ポータル（車を別次元へ飛ばし、数秒後に同じ位置へ戻す） |
 | [05-game-flow.md](features/05-game-flow.md) | ゲーム進行（60 秒タイマー・スコア表示・結果・リトライ） |
 | [06-refactor.md](features/06-refactor.md) | 要リファクタ（05 までの見直しで出た、コードと Editor の整理） |
-| [07-wave-sections.md](features/07-wave-sections.md) | 波の生成制御（20 秒 × 3 セクション、事故の予約・山場・谷） |
+| [07-wave-sections.md](features/07-wave-sections.md) | 波の生成制御（スコアで進む 3 セクション、事故の予約・山場・谷） |
 | [08-shift-feedback.md](features/08-shift-feedback.md) | フィードバック（吸い込み演出と SE・背景色） |
 | [09-title-and-flow.md](features/09-title-and-flow.md) | タイトル画面とゲームの流れ（タイトル→プレイ→結果→リトライ／タイトルへ） |
 | [12-accident-score.md](features/12-accident-score.md) | 事故でスコアを稼ぐ（ルール転換・スコア表示・「+100」） |

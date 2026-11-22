@@ -18,6 +18,7 @@ MonoBehaviour:
   policeFirstDelay: 6
   sections:
   - label: "\u7B2C1\u5E55 \u5C0E\u5165"
+    scoreToEnter: 0
     duration: 20
     fillerInterval: 0.65
     firstAccidentDelay: 5
@@ -32,9 +33,10 @@ MonoBehaviour:
     chainGap: 0.8
     valleyDuration: 4
     valleyFillerInterval: 3
-    policeIntervalMin: 9
-    policeIntervalMax: 11
+    policeIntervalMin: 7
+    policeIntervalMax: 9
   - label: "\u7B2C2\u5E55 \u5C55\u958B"
+    scoreToEnter: 600
     duration: 20
     fillerInterval: 0.55
     firstAccidentDelay: 4
@@ -49,9 +51,10 @@ MonoBehaviour:
     chainGap: 0.8
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
-    policeIntervalMin: 7
-    policeIntervalMax: 9
+    policeIntervalMin: 4
+    policeIntervalMax: 6
   - label: "\u7B2C3\u5E55 \u30AF\u30E9\u30A4\u30DE\u30C3\u30AF\u30B9"
+    scoreToEnter: 1500
     duration: 20
     fillerInterval: 0.55
     firstAccidentDelay: 3
@@ -66,5 +69,5 @@ MonoBehaviour:
     chainGap: 0.7
     valleyDuration: 3.5
     valleyFillerInterval: 2.5
-    policeIntervalMin: 5
-    policeIntervalMax: 7
+    policeIntervalMin: 2
+    policeIntervalMax: 4
