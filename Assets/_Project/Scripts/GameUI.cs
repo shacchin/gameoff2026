@@ -1,8 +1,9 @@
 using TMPro;
 using UnityEngine;
+using UnityEngine.Serialization;
 
 /// <summary>
-/// 残り時間・スコアと結果画面の表示（Canvas に付ける）。進行は GameManager が持ち、ここは見せるだけ。
+/// 見逃した警察車両の数・スコアと結果画面の表示（Canvas に付ける）。進行は GameManager が持ち、ここは見せるだけ。
 /// 文字は英語にしている（TextMeshPro の標準フォントには日本語が入っていないため）。
 /// </summary>
 public class GameUI : MonoBehaviour
@@ -10,7 +11,9 @@ public class GameUI : MonoBehaviour
     [SerializeField] GameManager gameManager;
 
     [Header("プレイ中")]
-    [SerializeField] TMP_Text timerText;
+    [Tooltip("見逃した警察車両の数（MISS 1/3）")]
+    [FormerlySerializedAs("timerText")]
+    [SerializeField] TMP_Text missText;
     [Tooltip("今のスコア")]
     [SerializeField] TMP_Text scoreText;
 
@@ -18,7 +21,7 @@ public class GameUI : MonoBehaviour
     [Tooltip("結果画面のまとまり（最初は隠しておき、結果を出すときに表示する）")]
     [SerializeField] GameObject resultPanel;
     [SerializeField] TMP_Text resultText;
-    [SerializeField] string finishMessage = "TIME UP!";
+    [SerializeField] string gameOverMessage = "GAME OVER";
     [Tooltip("最終スコア")]
     [SerializeField] TMP_Text finalScoreText;
 
@@ -34,14 +37,13 @@ public class GameUI : MonoBehaviour
     {
         if (gameManager == null) return;
 
-        // 59.2 秒なら 60 と出す（0 になった瞬間に終わる）
-        if (timerText != null) timerText.text = Mathf.CeilToInt(gameManager.RemainingTime).ToString();
+        if (missText != null) missText.text = $"MISS {gameManager.PoliceMisses}/{gameManager.MaxPoliceMisses}";
         if (scoreText != null) scoreText.text = $"SCORE {gameManager.Score}";
     }
 
     void ShowResult(GameManager.State result)
     {
-        if (resultText != null) resultText.text = finishMessage;
+        if (resultText != null) resultText.text = gameOverMessage;
         if (finalScoreText != null) finalScoreText.text = $"SCORE {gameManager.Score}";
         if (resultPanel != null) resultPanel.SetActive(true);
     }

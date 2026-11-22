@@ -19,7 +19,11 @@ public class GameTuning : ScriptableObject
     [Tooltip("車の速度（マス/秒）")]
     public float carSpeed = 4f;
 
-    [Header("セクション（上から順に進む。合計がゲームの制限時間と同じになるようにする）")]
+    [Header("警察車両")]
+    [Tooltip("ゲーム開始から最初の警察車両を出すまでの秒数。2 台目からは各セクションの間隔で出す")]
+    public float policeFirstDelay = 8f;
+
+    [Header("セクション（上から順に進む。最後のセクションは、終わったらずっと繰り返す）")]
     public Section[] sections =
     {
         new Section
@@ -33,6 +37,7 @@ public class GameTuning : ScriptableObject
             simultaneousChance = 0f,
             chainChance = 0f,
             valleyDuration = 4f, valleyFillerInterval = 3f,
+            policeIntervalMin = 12f, policeIntervalMax = 15f,
         },
         new Section
         {
@@ -45,6 +50,7 @@ public class GameTuning : ScriptableObject
             simultaneousChance = 0.3f,
             chainChance = 0.3f, chainGap = 0.8f,
             valleyDuration = 3.5f, valleyFillerInterval = 2.5f,
+            policeIntervalMin = 9f, policeIntervalMax = 12f,
         },
         new Section
         {
@@ -57,19 +63,9 @@ public class GameTuning : ScriptableObject
             simultaneousChance = 0.4f,
             chainChance = 0.4f, chainGap = 0.7f,
             valleyDuration = 3.5f, valleyFillerInterval = 2.5f,
+            policeIntervalMin = 7f, policeIntervalMax = 9f,
         },
     };
-
-    /// <summary>全セクションの長さの合計（秒）。</summary>
-    public float TotalDuration
-    {
-        get
-        {
-            float total = 0f;
-            foreach (var s in sections) total += s.duration;
-            return total;
-        }
-    }
 
     /// <summary>
     /// 1 セクションの設定。時刻はすべて「そのセクションが始まってからの秒数」。
@@ -114,5 +110,10 @@ public class GameTuning : ScriptableObject
         public float valleyDuration = 3.5f;
         [Tooltip("谷の間のつなぎの車の間隔（秒）")]
         public float valleyFillerInterval = 2.5f;
+
+        [Header("警察車両（左から右へ走る。破壊できずに見逃すとゲームオーバーに近づく）")]
+        [Tooltip("警察車両を出す間隔（秒）。この範囲からランダムに選ぶ")]
+        public float policeIntervalMin = 10f;
+        public float policeIntervalMax = 12f;
     }
 }
