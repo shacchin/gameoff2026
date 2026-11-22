@@ -1650,6 +1650,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::WaveDirector
   tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
+  logSection: 1
 --- !u!1 &1216745062
 GameObject:
   m_ObjectHideFlags: 0
@@ -2141,12 +2142,13 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::PortalPlacer
   portalPrefab: {fileID: 4287336662761203793, guid: 7291266ae2dd1e24889686dd0f73bcd6, type: 3}
   returnMarkPrefab: {fileID: 160060140627285119, guid: 702af178bbefcf8428c7f3440bf194d7, type: 3}
-  carSpawner: {fileID: 769909600}
+  grid: {fileID: 1968339199}
   maxPortals: 3
   openDelay: 0
   lifetime: 3
   tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
-  snapDistance: 0.5
+  cursorPrefab: {fileID: 2974940696840234864, guid: 0c40dd45617e51940be70104035429e2, type: 3}
+  cursorFullAlpha: 0.3
 --- !u!1 &1557028112
 GameObject:
   m_ObjectHideFlags: 0

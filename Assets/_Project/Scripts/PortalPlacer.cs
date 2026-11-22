@@ -3,15 +3,16 @@ using UnityEngine.InputSystem;
 
 /// <summary>
 /// クリックした位置にポータルを置く（Systems の子に 1 つ置く）。道路以外にも置ける。
-/// 道路の上（車線の中心の近く）をクリックしたときは、車線の中心に寄せて置く（車を吸い込み損ねないように）。
+/// 置く位置はマウスのあるマスの中心に吸着し、その位置にカーソル（ポータルが出る場所の目印）を出す。
+/// 車線の中心はどれもマスの中心にあるので、道路の上なら車線の中心に置かれる。
 /// ポータルの数値（開くまでの時間・開いている時間・同時に置ける数）はここで調整する。別次元にいる時間は GameTuning にある。
 /// </summary>
 public class PortalPlacer : MonoBehaviour
 {
     [SerializeField] Portal portalPrefab;
     [SerializeField] ReturnMark returnMarkPrefab;
-    [Tooltip("車線への吸着に使う経路の出どころ（Routes オブジェクトの CarSpawner）")]
-    [SerializeField] CarSpawner carSpawner;
+    [Tooltip("マスへの吸着に使う Grid（シーンの Grid オブジェクト）")]
+    [SerializeField] Grid grid;
 
     [Header("ポータル")]
     [Tooltip("同時に置けるポータルの数")]
@@ -23,68 +24,96 @@ public class PortalPlacer : MonoBehaviour
     [Tooltip("車が別次元にいる時間（shiftDuration）はここから読む")]
     [SerializeField] GameTuning tuning;
 
-    [Header("車線への吸着")]
-    [Tooltip("車線の中心からこの距離（マス）以内をクリックしたら、車線の中心に寄せる。道路 2 マス幅・片側 1 車線なら 0.5")]
-    [SerializeField] float snapDistance = 0.5f;
+    [Header("カーソル")]
+    [Tooltip("ポータルが出る場所に出す目印（ルート + Visual の Prefab）")]
+    [SerializeField] GameObject cursorPrefab;
+    [Tooltip("ポータルを置ける数を使い切っているときのカーソルの不透明度")]
+    [Range(0f, 1f)]
+    [SerializeField] float cursorFullAlpha = 0.3f;
 
     Camera cam;
+    Transform cursor;
+    SpriteRenderer cursorRenderer;
+    Color cursorColor;
 
     void Start()
     {
         cam = Camera.main;
-        if (carSpawner == null)
+        if (grid == null)
         {
-            Debug.LogError("PortalPlacer に CarSpawner が設定されていないため、車線に吸着しません", this);
+            Debug.LogError("PortalPlacer に Grid が設定されていないため、マスに吸着しません", this);
         }
         if (tuning == null)
         {
             Debug.LogError("PortalPlacer に GameTuning が設定されていません", this);
             enabled = false;
+            return;
+        }
+
+        if (cursorPrefab != null)
+        {
+            cursor = Instantiate(cursorPrefab, transform).transform;
+            cursorRenderer = cursor.GetComponentInChildren<SpriteRenderer>();
+            if (cursorRenderer != null) cursorColor = cursorRenderer.color;
+            cursor.gameObject.SetActive(enabled);
         }
     }
 
-    // ゲームが終わったら置けなくする
-    void OnEnable() => GameManager.GameEnded += OnGameEnded;
-    void OnDisable() => GameManager.GameEnded -= OnGameEnded;
+    // ゲームが終わったら置けなくする（カーソルも消す）
+    void OnEnable()
+    {
+        GameManager.GameEnded += OnGameEnded;
+        if (cursor != null) cursor.gameObject.SetActive(true);
+    }
+
+    void OnDisable()
+    {
+        GameManager.GameEnded -= OnGameEnded;
+        if (cursor != null) cursor.gameObject.SetActive(false);
+    }
+
     void OnGameEnded(GameManager.State result) => enabled = false;
 
     void Update()
     {
         Mouse mouse = Mouse.current;
-        if (mouse == null || !mouse.leftButton.wasPressedThisFrame) return;
+        if (mouse == null) return;
 
         Vector3 world = cam.ScreenToWorldPoint(mouse.position.ReadValue());
-        TryPlace(world);
+        Vector3 position = SnapToGrid(world);
+        bool canPlace = Portal.All.Count < maxPortals;
+
+        UpdateCursor(position, canPlace);
+
+        if (canPlace && mouse.leftButton.wasPressedThisFrame)
+        {
+            Portal portal = Instantiate(portalPrefab, position, Quaternion.identity, transform);
+            portal.Init(openDelay, lifetime, tuning.shiftDuration, returnMarkPrefab);
+        }
     }
 
-    bool TryPlace(Vector2 point)
+    void UpdateCursor(Vector3 position, bool canPlace)
     {
-        if (Portal.All.Count >= maxPortals) return false;
+        if (cursor == null) return;
 
-        Vector3 position = SnapToLane(point);
-        position.z = 0f;
-        Portal portal = Instantiate(portalPrefab, position, Quaternion.identity, transform);
-        portal.Init(openDelay, lifetime, tuning.shiftDuration, returnMarkPrefab);
-        return true;
+        cursor.position = position;
+        if (cursorRenderer != null)
+        {
+            Color c = cursorColor;
+            if (!canPlace) c.a *= cursorFullAlpha;
+            cursorRenderer.color = c;
+        }
     }
 
-    /// <summary>point が車線の中心から snapDistance 以内なら、一番近い車線の中心を返す。遠ければ point のまま。</summary>
-    Vector3 SnapToLane(Vector2 point)
+    /// <summary>point があるマスの中心を返す（z = 0）。Grid がなければ point のまま。</summary>
+    Vector3 SnapToGrid(Vector2 point)
     {
         Vector3 result = point;
-        if (carSpawner == null) return result;
-
-        float bestSqr = snapDistance * snapDistance;
-        foreach (var route in carSpawner.Routes)
+        if (grid != null)
         {
-            Vector3 p = route.FindClosestPoint(point);
-            float sqr = (point - (Vector2)p).sqrMagnitude;
-            if (sqr <= bestSqr)
-            {
-                bestSqr = sqr;
-                result = p;
-            }
+            result = grid.GetCellCenterWorld(grid.WorldToCell(point));
         }
+        result.z = 0f;
         return result;
     }
 }
