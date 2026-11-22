@@ -1,7 +1,7 @@
 ---
-status: 進行中
+status: 完了
 started: 2026-11-22
-completed:
+completed: 2026-11-22
 ---
 
 # ポータルを置く位置のカーソル
@@ -35,3 +35,12 @@ completed:
 ## 未決・TODO
 
 - [ ] OS のマウスカーソルを隠すか決める（隠すと結果画面のボタン操作が分かりにくくなる）
+
+## 実装メモ
+
+- 変更: `PortalPlacer` がカーソルの Prefab を `Start` で自分の子として作り、`Update` で毎フレーム `SnapToGrid` の位置へ動かす。クリックで置く位置にも同じ値を使う。車線への吸着（`SnapToLane`、`carSpawner`、`snapDistance`）は削除した
+- 設計判断: マスの中心は `Grid.GetCellCenterWorld(WorldToCell)` で求める。Grid の原点やマスの大きさが変わっても追従させるため
+- 設計判断: カーソルの表示・非表示は `PortalPlacer` の `OnEnable` / `OnDisable` に合わせる。ゲーム終了で `enabled = false` になると一緒に消える
+- 注意点: 置けない状態の薄さは、スクリプトが `Visual` の `SpriteRenderer.color` の alpha を書き換えて出している。色を DOTween で動かす演出を足すときはぶつかる
+- 注意点: `cursor.aseprite` は余白を切り抜いて 28×28px（0.875 マス）で読み込まれる。ピボットはキャンバスの中心なので位置はずれない。大きさを変えるときは `Visual` の Scale ではなく絵を描き直す（Pixel Perfect Camera でドットが崩れるため）
+- 動作確認: カーソルがマスの中心に吸着して表示されることをユーザーが確認した（11/22）。置けない数のときの薄さ、マスの中心に置いたポータルが縦・横の車線の車を吸い込むこと、WebGL ビルドは未確認
