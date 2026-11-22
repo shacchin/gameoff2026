@@ -1,3 +1,4 @@
+using System.Collections.Generic;
 using DG.Tweening;
 using TMPro;
 using UnityEngine;
@@ -13,6 +14,9 @@ using UnityEngine;
 /// </summary>
 public class ReturnMark : MonoBehaviour
 {
+    /// <summary>シーンにある目印。カーソルを重ねて出さないための判定に使う（PortalPlacer）。</summary>
+    public static readonly List<ReturnMark> All = new List<ReturnMark>();
+
     [Tooltip("残り時間を表示するテキスト（ルートの直下に置く。回転させずに常に正立させる）")]
     [SerializeField] TMP_Text timeText;
     [Tooltip("残り時間の文字を出すか。走ってくるゴーストで残り時間がわかるので、既定では出さない")]
@@ -34,6 +38,9 @@ public class ReturnMark : MonoBehaviour
     float returnDistance; // 車が止まっている（戻る）位置の、経路の先頭からの距離
     Transform ghost;
     SpriteRenderer ghostSprite;
+
+    void OnEnable() => All.Add(this);
+    void OnDisable() => All.Remove(this);
 
     /// <summary>出した直後に呼ぶ。duration 秒後に car を戻す。</summary>
     public void Init(Car car, float duration)

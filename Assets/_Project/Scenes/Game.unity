@@ -2150,7 +2150,7 @@ MonoBehaviour:
   tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
   cursorPrefab: {fileID: 2974940696840234864, guid: 0c40dd45617e51940be70104035429e2, type: 3}
   cursorDisabledSprite: {fileID: 5889443482792760197, guid: 97ff7a97b3cd68e4a8794b54ed3437b6, type: 3}
-  gaugeOffset: {x: 0, y: -0.6}
+  gaugeOffset: {x: 0, y: 0.6}
   gaugeSize: {x: 0.8, y: 0.12}
   gaugeBackColor: {r: 0, g: 0, b: 0, a: 0.6}
   gaugeFillColor: {r: 0.4, g: 0.9, b: 1, a: 1}

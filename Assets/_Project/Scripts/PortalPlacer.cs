@@ -32,9 +32,9 @@ public class PortalPlacer : MonoBehaviour
     [Tooltip("ポータルを置ける数を使い切っているときのカーソルの絵（置けるときの絵は Prefab の Visual に入れたもの）")]
     [SerializeField] Sprite cursorDisabledSprite;
 
-    [Header("クールダウンのゲージ（カーソルの下に出す。実行時に作る）")]
-    [Tooltip("カーソルの中心から見たゲージの中心の位置（マス）")]
-    [SerializeField] Vector2 gaugeOffset = new Vector2(0f, -0.6f);
+    [Header("クールダウンのゲージ（カーソルの上に出す。実行時に作る）")]
+    [Tooltip("カーソルの中心から見たゲージの中心の位置（マス）。下に出すとマウスポインターに隠れるので上にする")]
+    [SerializeField] Vector2 gaugeOffset = new Vector2(0f, 0.6f);
     [Tooltip("ゲージの大きさ（マス）")]
     [SerializeField] Vector2 gaugeSize = new Vector2(0.8f, 0.12f);
     [SerializeField] Color gaugeBackColor = new Color(0f, 0f, 0f, 0.6f);
@@ -102,9 +102,11 @@ public class PortalPlacer : MonoBehaviour
 
         Vector3 world = cam.ScreenToWorldPoint(mouse.position.ReadValue());
         Vector3 position = SnapToGrid(world);
-        bool canPlace = Portal.All.Count < maxPortals && Time.time >= cooldownEndTime;
+        bool hasPortal = HasPortalAt(position);
+        bool canPlace = !hasPortal && Portal.All.Count < maxPortals && Time.time >= cooldownEndTime;
 
-        UpdateCursor(position, canPlace);
+        // ポータルか車が戻る位置の目印があるマスでは、それが目印になるのでカーソルの絵を出さない
+        UpdateCursor(position, canPlace, hasPortal || HasReturnMarkAt(position));
 
         if (canPlace && mouse.leftButton.wasPressedThisFrame)
         {
@@ -113,16 +115,44 @@ public class PortalPlacer : MonoBehaviour
         }
     }
 
-    void UpdateCursor(Vector3 position, bool canPlace)
+    /// <summary>
+    /// カーソルを動かし、絵を切り替える。hideSprite のときは、ほかの目印と重ならないようにカーソルの絵だけ隠す。
+    /// ルートごと隠すと子のゲージまで消えるので、絵（SpriteRenderer）だけを切り替える。
+    /// </summary>
+    void UpdateCursor(Vector3 position, bool canPlace, bool hideSprite)
     {
         if (cursor == null) return;
 
         cursor.position = position;
-        if (cursorRenderer != null && cursorDisabledSprite != null)
+        if (cursorRenderer != null)
         {
-            cursorRenderer.sprite = canPlace ? cursorEnabledSprite : cursorDisabledSprite;
+            cursorRenderer.enabled = !hideSprite;
+            if (cursorDisabledSprite != null)
+            {
+                cursorRenderer.sprite = canPlace ? cursorEnabledSprite : cursorDisabledSprite;
+            }
         }
         UpdateGauge();
+    }
+
+    /// <summary>position（マスの中心）にポータルが置かれているか。ポータルもマスの中心に置くので、距離が十分近ければ同じマスとみなす。</summary>
+    bool HasPortalAt(Vector3 position)
+    {
+        foreach (var portal in Portal.All)
+        {
+            if (((Vector2)(portal.transform.position - position)).sqrMagnitude < 0.01f) return true;
+        }
+        return false;
+    }
+
+    /// <summary>position（マスの中心）に車が戻る位置の目印があるか。目印はポータルの中心に出るので、ポータルと同じ判定でよい。</summary>
+    bool HasReturnMarkAt(Vector3 position)
+    {
+        foreach (var mark in ReturnMark.All)
+        {
+            if (((Vector2)(mark.transform.position - position)).sqrMagnitude < 0.01f) return true;
+        }
+        return false;
     }
 
     /// <summary>クールダウン中だけゲージを出し、経過に合わせて左から右へ溜める。</summary>
