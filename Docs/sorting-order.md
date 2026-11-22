@@ -38,3 +38,4 @@
 | `WarningMark` | Prefab / `Visual` の Sprite Renderer | 210 |
 | `ScorePopup`（事故の「+100」） | Prefab / `Visual` の TextMeshPro（Extra Settings） | 220 |
 | `PortalCursor`（ポータルを置く位置） | Prefab / `Visual` の Sprite Renderer | 300 |
+| `CooldownGauge`（カーソルの下のクールダウンのゲージ） | `PortalPlacer` の Gauge Sorting Order（実行時に作る。背景 301、溜まる部分 302） | 301〜302 |

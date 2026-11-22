@@ -5,7 +5,7 @@ using UnityEngine.InputSystem;
 /// クリックした位置にポータルを置く（Systems の子に 1 つ置く）。道路以外にも置ける。
 /// 置く位置はマウスのあるマスの中心に吸着し、その位置にカーソル（ポータルが出る場所の目印）を出す。
 /// 車線の中心はどれもマスの中心にあるので、道路の上なら車線の中心に置かれる。
-/// ポータルの数値（開くまでの時間・開いている時間・同時に置ける数）はここで調整する。別次元にいる時間は GameTuning にある。
+/// ポータルの数値（開くまでの時間・開いている時間・同時に置ける数・クールダウン）はここで調整する。別次元にいる時間は GameTuning にある。
 /// </summary>
 public class PortalPlacer : MonoBehaviour
 {
@@ -17,6 +17,8 @@ public class PortalPlacer : MonoBehaviour
     [Header("ポータル")]
     [Tooltip("同時に置けるポータルの数")]
     [SerializeField] int maxPortals = 3;
+    [Tooltip("ポータルが車を飲み込んでから次を置けるまでの時間（秒）。時間切れで消えたときはクールダウンなし")]
+    [SerializeField] float cooldown = 3f;
     [Tooltip("置いてから開くまでの時間（秒）。開くまでは車を吸い込まない")]
     [SerializeField] float openDelay = 0f;
     [Tooltip("開いてから消えるまでの時間（秒）。その間に車が来なければ消える")]
@@ -30,10 +32,24 @@ public class PortalPlacer : MonoBehaviour
     [Tooltip("ポータルを置ける数を使い切っているときのカーソルの絵（置けるときの絵は Prefab の Visual に入れたもの）")]
     [SerializeField] Sprite cursorDisabledSprite;
 
+    [Header("クールダウンのゲージ（カーソルの下に出す。実行時に作る）")]
+    [Tooltip("カーソルの中心から見たゲージの中心の位置（マス）")]
+    [SerializeField] Vector2 gaugeOffset = new Vector2(0f, -0.6f);
+    [Tooltip("ゲージの大きさ（マス）")]
+    [SerializeField] Vector2 gaugeSize = new Vector2(0.8f, 0.12f);
+    [SerializeField] Color gaugeBackColor = new Color(0f, 0f, 0f, 0.6f);
+    [SerializeField] Color gaugeFillColor = new Color(0.4f, 0.9f, 1f, 1f);
+    [Tooltip("ゲージの背景の Order in Layer（溜まる部分はこれ +1）。帯域は Docs/sorting-order.md")]
+    [SerializeField] int gaugeSortingOrder = 301;
+
     Camera cam;
     Transform cursor;
     SpriteRenderer cursorRenderer;
     Sprite cursorEnabledSprite;
+    float cooldownEndTime;
+
+    GameObject gauge;
+    Transform gaugeFill;
 
     void Start()
     {
@@ -54,6 +70,7 @@ public class PortalPlacer : MonoBehaviour
             cursor = Instantiate(cursorPrefab, transform).transform;
             cursorRenderer = cursor.GetComponentInChildren<SpriteRenderer>();
             if (cursorRenderer != null) cursorEnabledSprite = cursorRenderer.sprite;
+            CreateGauge();
             cursor.gameObject.SetActive(enabled);
         }
     }
@@ -62,16 +79,21 @@ public class PortalPlacer : MonoBehaviour
     void OnEnable()
     {
         GameManager.GameEnded += OnGameEnded;
+        Portal.CarShifted += OnCarShifted;
         if (cursor != null) cursor.gameObject.SetActive(true);
     }
 
     void OnDisable()
     {
         GameManager.GameEnded -= OnGameEnded;
+        Portal.CarShifted -= OnCarShifted;
         if (cursor != null) cursor.gameObject.SetActive(false);
     }
 
     void OnGameEnded(GameManager.State result) => enabled = false;
+
+    // 車を飲み込んだ瞬間からクールダウンを始める
+    void OnCarShifted(Car car, Vector3 portalPosition) => cooldownEndTime = Time.time + cooldown;
 
     void Update()
     {
@@ -80,7 +102,7 @@ public class PortalPlacer : MonoBehaviour
 
         Vector3 world = cam.ScreenToWorldPoint(mouse.position.ReadValue());
         Vector3 position = SnapToGrid(world);
-        bool canPlace = Portal.All.Count < maxPortals;
+        bool canPlace = Portal.All.Count < maxPortals && Time.time >= cooldownEndTime;
 
         UpdateCursor(position, canPlace);
 
@@ -100,6 +122,59 @@ public class PortalPlacer : MonoBehaviour
         {
             cursorRenderer.sprite = canPlace ? cursorEnabledSprite : cursorDisabledSprite;
         }
+        UpdateGauge();
+    }
+
+    /// <summary>クールダウン中だけゲージを出し、経過に合わせて左から右へ溜める。</summary>
+    void UpdateGauge()
+    {
+        if (gauge == null) return;
+
+        float remaining = cooldownEndTime - Time.time;
+        bool coolingDown = remaining > 0f && cooldown > 0f;
+        if (gauge.activeSelf != coolingDown) gauge.SetActive(coolingDown);
+        if (!coolingDown) return;
+
+        float progress = 1f - remaining / cooldown;
+        gaugeFill.localScale = new Vector3(gaugeSize.x * progress, gaugeSize.y, 1f);
+    }
+
+    /// <summary>
+    /// カーソルの子にゲージ（背景と溜まる部分）を作る。絵を用意せずに済むよう、白い四角の Sprite を色付けして使う。
+    /// 溜まる部分は左端を基準（ピボット）にして、横の Scale だけ変える。
+    /// </summary>
+    void CreateGauge()
+    {
+        Texture2D tex = Texture2D.whiteTexture;
+        Rect rect = new Rect(0, 0, tex.width, tex.height);
+        // 1 マス × 1 マスの大きさになるように pixelsPerUnit をテクスチャの幅にする
+        Sprite centerSprite = Sprite.Create(tex, rect, new Vector2(0.5f, 0.5f), tex.width);
+        Sprite leftSprite = Sprite.Create(tex, rect, new Vector2(0f, 0.5f), tex.width);
+
+        gauge = new GameObject("CooldownGauge");
+        gauge.transform.SetParent(cursor, false);
+        gauge.transform.localPosition = gaugeOffset;
+
+        Transform back = CreateGaugePart("Back", centerSprite, gaugeBackColor, gaugeSortingOrder);
+        back.localPosition = Vector3.zero;
+        back.localScale = new Vector3(gaugeSize.x, gaugeSize.y, 1f);
+
+        gaugeFill = CreateGaugePart("Fill", leftSprite, gaugeFillColor, gaugeSortingOrder + 1);
+        gaugeFill.localPosition = new Vector3(-gaugeSize.x / 2f, 0f, 0f);
+        gaugeFill.localScale = new Vector3(0f, gaugeSize.y, 1f);
+
+        gauge.SetActive(false);
+    }
+
+    Transform CreateGaugePart(string name, Sprite sprite, Color color, int sortingOrder)
+    {
+        var part = new GameObject(name);
+        part.transform.SetParent(gauge.transform, false);
+        var sr = part.AddComponent<SpriteRenderer>();
+        sr.sprite = sprite;
+        sr.color = color;
+        sr.sortingOrder = sortingOrder;
+        return part.transform;
     }
 
     /// <summary>point があるマスの中心を返す（z = 0）。Grid がなければ point のまま。</summary>
