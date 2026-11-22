@@ -18,6 +18,13 @@ public class Car : MonoBehaviour
     /// <summary>シーンにいる全部の車（別次元にいる車も含む）。事故予告などで使う。</summary>
     public static readonly List<Car> All = new List<Car>();
 
+    /// <summary>警察車両が事故を起こさずに経路の末尾まで走り切った（見逃した）ときに呼ばれる。GameManager が見逃しを数える。</summary>
+    public static event System.Action<Car> PoliceEscaped;
+
+    [Header("種類")]
+    [Tooltip("警察車両か。オンにすると、経路の末尾まで走り切ったときに見逃しとして数える")]
+    [SerializeField] bool isPolice;
+
     [Header("当たり判定")]
     [Tooltip("当たり判定の四角の大きさ（マス）。x が進行方向の長さ、y が幅")]
     [SerializeField] Vector2 size = new Vector2(0.75f, 0.5f);
@@ -36,6 +43,9 @@ public class Car : MonoBehaviour
 
     public State CurrentState { get; private set; } = State.Driving;
     public bool IsDriving => CurrentState == State.Driving;
+
+    /// <summary>警察車両か。</summary>
+    public bool IsPolice => isPolice;
 
     /// <summary>当たり判定の四角の大きさ（マス）。x が進行方向の長さ、y が幅。</summary>
     public Vector2 Size => size;
@@ -91,6 +101,7 @@ public class Car : MonoBehaviour
         Distance += Speed * Time.deltaTime;
         if (Distance >= Route.Length)
         {
+            if (isPolice) PoliceEscaped?.Invoke(this);
             Destroy(gameObject);
             return;
         }

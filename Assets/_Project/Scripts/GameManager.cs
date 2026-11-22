@@ -8,9 +8,10 @@ using UnityEngine.SceneManagement;
 using UnityEngine.Serialization;
 
 /// <summary>
-/// 1 プレイの進行（プレイ中／終了）と残り時間・スコアを受け持つ（Systems の子に 1 つ置く）。
+/// 1 プレイの進行（プレイ中／ゲームオーバー）と、見逃した警察車両の数・スコアを受け持つ（Systems の子に 1 つ置く）。
 /// - 事故（AccidentPredictor.AccidentHappened）が起きたらスコアを加え、事故の地点にマークを出す。ゲームは止めない
-/// - 残り時間が 0 になったら終了。Time.timeScale = 0 で全体を止め、GameEnded で知らせる
+/// - 制限時間はない。警察車両を maxPoliceMisses 台見逃したら（Car.PoliceEscaped）ゲームオーバー。
+///   Time.timeScale = 0 で全体を止め、GameEnded で知らせる
 /// - 少し待ってから ResultShown で結果を出す。そのあと Retry か GoToTitle で次へ進む
 ///   （GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
 /// </summary>
@@ -19,7 +20,7 @@ public class GameManager : MonoBehaviour
     public enum State
     {
         Playing,  // プレイ中
-        Finished, // 時間切れで終わった
+        GameOver, // 警察車両を見逃しすぎて終わった
     }
 
     /// <summary>ゲームが終わった瞬間に呼ばれる。車の出現・ポータル配置・事故の判定はこれで止まる。</summary>
@@ -28,9 +29,9 @@ public class GameManager : MonoBehaviour
     /// <summary>結果を出すタイミングで呼ばれる（GameUI が結果画面を出す）。</summary>
     public static event Action<State> ResultShown;
 
-    [Header("時間")]
-    [Tooltip("プレイ時間（秒）。0 になったら終わり")]
-    [SerializeField] float timeLimit = 60f;
+    [Header("ゲームオーバー")]
+    [Tooltip("警察車両をこの台数見逃したらゲームオーバー")]
+    [SerializeField] int maxPoliceMisses = 3;
 
     [Header("スコア")]
     [Tooltip("事故 1 件で加える点数")]
@@ -64,8 +65,11 @@ public class GameManager : MonoBehaviour
 
     public State CurrentState { get; private set; } = State.Playing;
 
-    /// <summary>残り時間（秒）。GameUI が表示に使う。</summary>
-    public float RemainingTime { get; private set; }
+    /// <summary>見逃した警察車両の数。GameUI が表示に使う。</summary>
+    public int PoliceMisses { get; private set; }
+
+    /// <summary>この台数見逃したらゲームオーバー。GameUI が表示に使う。</summary>
+    public int MaxPoliceMisses => maxPoliceMisses;
 
     /// <summary>今のスコア。GameUI が表示に使う。</summary>
     public int Score { get; private set; }
@@ -76,24 +80,23 @@ public class GameManager : MonoBehaviour
     {
         // timeScale はシーンを読み込み直しても戻らないので、ここで戻す
         Time.timeScale = 1f;
-        RemainingTime = timeLimit;
     }
 
-    void OnEnable() => AccidentPredictor.AccidentHappened += OnAccident;
-    void OnDisable() => AccidentPredictor.AccidentHappened -= OnAccident;
+    void OnEnable()
+    {
+        AccidentPredictor.AccidentHappened += OnAccident;
+        Car.PoliceEscaped += OnPoliceEscaped;
+    }
+
+    void OnDisable()
+    {
+        AccidentPredictor.AccidentHappened -= OnAccident;
+        Car.PoliceEscaped -= OnPoliceEscaped;
+    }
 
     void Update()
     {
-        if (CurrentState == State.Playing)
-        {
-            RemainingTime -= Time.deltaTime;
-            if (RemainingTime <= 0f)
-            {
-                RemainingTime = 0f;
-                End();
-            }
-            return;
-        }
+        if (CurrentState == State.Playing) return;
 
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
@@ -124,9 +127,17 @@ public class GameManager : MonoBehaviour
         ShowScorePopup(position, pointsPerAccident);
     }
 
+    void OnPoliceEscaped(Car car)
+    {
+        if (CurrentState != State.Playing) return;
+
+        PoliceMisses++;
+        if (PoliceMisses >= maxPoliceMisses) End();
+    }
+
     void End()
     {
-        CurrentState = State.Finished;
+        CurrentState = State.GameOver;
         Time.timeScale = 0f;
         GameEnded?.Invoke(CurrentState);
         StartCoroutine(ShowResultAfter(resultDelay));

@@ -1,0 +1,206 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &6617026063822578852
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 7634763923939332352}
+  - component: {fileID: 164152132802255390}
+  - component: {fileID: 1054929497979667876}
+  m_Layer: 0
+  m_Name: Visual
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &7634763923939332352
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617026063822578852}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 3390943346835855200}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!212 &164152132802255390
+SpriteRenderer:
+  serializedVersion: 2
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617026063822578852}
+  m_Enabled: 1
+  m_CastShadows: 0
+  m_ReceiveShadows: 0
+  m_DynamicOccludee: 1
+  m_StaticShadowCaster: 0
+  m_MotionVectors: 1
+  m_LightProbeUsage: 1
+  m_ReflectionProbeUsage: 1
+  m_RayTracingMode: 0
+  m_RayTraceProcedural: 0
+  m_RayTracingAccelStructBuildFlagsOverride: 0
+  m_RayTracingAccelStructBuildFlags: 1
+  m_SmallMeshCulling: 1
+  m_ForceMeshLod: -1
+  m_MeshLodSelectionBias: 0
+  m_RenderingLayerMask: 1
+  m_RendererPriority: 0
+  m_Materials:
+  - {fileID: 2100000, guid: a97c105638bdf8b4a8650670310a4cd3, type: 2}
+  m_StaticBatchInfo:
+    firstSubMesh: 0
+    subMeshCount: 0
+  m_StaticBatchRoot: {fileID: 0}
+  m_ProbeAnchor: {fileID: 0}
+  m_LightProbeVolumeOverride: {fileID: 0}
+  m_ScaleInLightmap: 1
+  m_ReceiveGI: 1
+  m_PreserveUVs: 0
+  m_IgnoreNormalsForChartDetection: 0
+  m_ImportantGI: 0
+  m_StitchLightmapSeams: 1
+  m_SelectedEditorRenderState: 0
+  m_MinimumChartSize: 4
+  m_AutoUVMaxDistance: 0.5
+  m_AutoUVMaxAngle: 89
+  m_LightmapParameters: {fileID: 0}
+  m_GlobalIlluminationMeshLod: 0
+  m_SortingLayerID: 0
+  m_SortingLayer: 0
+  m_SortingOrder: 0
+  m_MaskInteraction: 0
+  m_Sprite: {fileID: 5043557742106726371, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_FlipX: 0
+  m_FlipY: 0
+  m_DrawMode: 0
+  m_Size: {x: 1, y: 1}
+  m_AdaptiveModeThreshold: 0.5
+  m_SpriteTileMode: 0
+  m_WasSpriteAssigned: 1
+  m_SpriteSortPoint: 0
+--- !u!114 &1054929497979667876
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 6617026063822578852}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 1bc950e79bfb8bd4d9e40d269f664980, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::DirectionalSprite
+  frames:
+  - {fileID: 5043557742106726371, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -4661328666468435470, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 2197049394891545093, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -8304300711274939382, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -6822139552589984291, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 8505947165603327365, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -7638983016857972560, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 1298737980274945278, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 6132139899970928868, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 5266280441563284847, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 9174773455857695759, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -1809759637291573062, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 299103037274502557, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -755153557980737228, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -8370645123845204333, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 905644528404337041, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -4166492598465936370, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -2795305334578137918, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 3832169796850871017, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -6916515460340413191, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -8593894121388215941, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -7810255071480871093, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -7801903849687823091, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 6086402510662892872, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 8644648103658126980, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -5747025764938185130, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 5676452055188652395, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 4461663383096293970, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 7174148356097234326, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 3918627906790460590, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -6258120539293879429, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 1886198865030413851, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -1573302117138084743, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 3086522904723735236, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -3467325433444437211, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 2598604399123737966, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 7888202425981054765, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 5600792187500290053, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -2960567353282946578, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 6866076891235036907, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 864604234712380662, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 3194013543356791336, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -7151323027585622318, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -7676516515830298762, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 11911786147578322, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 8289779882587896555, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: 1898796160596430497, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  - {fileID: -5691984350315050761, guid: 4b317f24b5c7a0f47b74913e23b8d28e, type: 3}
+  clockwise: 1
+  firstFrameAngle: 0
+--- !u!1 &7336916137271177590
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 3390943346835855200}
+  - component: {fileID: 7145333716253320378}
+  m_Layer: 0
+  m_Name: PoliceCar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &3390943346835855200
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7336916137271177590}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children:
+  - {fileID: 7634763923939332352}
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &7145333716253320378
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 7336916137271177590}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 43d1f2de5904a1947ab11d92308fd094, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::Car
+  isPolice: 1
+  size: {x: 0.75, y: 0.5}
+  warningColor: {r: 1, g: 0.3, b: 0.3, a: 1}
+  blinkInterval: 0.12

@@ -8,12 +8,16 @@ using UnityEngine;
 ///   縦と横の道路のうち、いま車が少ないほうに出す（横の道路は長く、同じ頻度で出すと横ばかり車が見えるため）
 /// こうすると、事故はすべて予約したものになり、事故の間隔・同時に起きる数・谷（事故なし）をセクションごとに決められる。
 /// ただしプレイヤーがずらした車が起こす事故は防がない（それはプレイヤーの判断の結果）。
+/// 警察車両も一定の間隔で出す。左から右へ走る横の車線から 1 本選び、ほかのどの車ともぶつからない場合だけ出す。
+/// 予約する事故の 2 台は普通の車だけで、警察車両は使わない（警察車両はプレイヤーがずらさない限り事故を起こさない）。
 /// routes が空なら、子オブジェクトにある Route を全部使う（Routes オブジェクトに付けると楽）。
 /// 使う経路の一覧は Routes で公開し、ほかのスクリプト（PortalPlacer など）もここから取る。
 /// </summary>
 public class CarSpawner : MonoBehaviour
 {
     [SerializeField] Car carPrefab;
+    [Tooltip("警察車両の Prefab（Car の Is Police をオンにしたもの）")]
+    [SerializeField] Car policePrefab;
     [SerializeField] Route[] routes;
     [Tooltip("経過時間・今のセクション・数値（GameTuning）の出どころ")]
     [SerializeField] WaveDirector waveDirector;
@@ -59,12 +63,14 @@ public class CarSpawner : MonoBehaviour
     readonly List<Track> others = new List<Track>();    // 調べるときに使う、ほかの車の一覧
     readonly List<Crossing> crossings = new List<Crossing>();
     readonly List<Route> routeOrder = new List<Route>();
+    readonly List<Route> policeRoutes = new List<Route>(); // 左から右へ走る横の車線
     GameTuning tuning;
     Vector2 carHalfSize;
     float lookahead;          // 事故の何秒前に予約すれば、どの交差点でも間に合うか
     float nextAccidentTime;   // 次に予約する事故の時刻
     float nextAccidentTry;    // 予約に失敗したあと、次に試す時刻
     float nextFillerTime;     // 次につなぎの車を出す時刻
+    float nextPoliceTime;     // 次に警察車両を出す時刻
 
     // 確認用（logSchedule）: 縦と横の道路の車の数
     int spawnedHorizontal, spawnedVertical;     // 出した台数
@@ -97,6 +103,14 @@ public class CarSpawner : MonoBehaviour
 
         FindAllCrossings();
         nextAccidentTime = NormalizeAccidentTime(tuning.sections[0].firstAccidentDelay);
+
+        foreach (var route in routes)
+        {
+            if (IsLeftToRight(route)) policeRoutes.Add(route);
+        }
+        if (policePrefab == null) Debug.LogError("CarSpawner に警察車両の Prefab が設定されていません", this);
+        else if (policeRoutes.Count == 0) Debug.LogError("左から右へ走る横の経路がないため、警察車両を出せません", this);
+        nextPoliceTime = tuning.policeFirstDelay;
     }
 
     // ゲームが終わったら車を出さない（timeScale = 0 でも止まるが、終わったことをはっきりさせる）
@@ -113,6 +127,7 @@ public class CarSpawner : MonoBehaviour
         SpawnPending();
         UpdateAccidents();
         UpdateFiller();
+        UpdatePolice();
         if (logSchedule) SampleBalance();
     }
 
@@ -131,9 +146,9 @@ public class CarSpawner : MonoBehaviour
         }
     }
 
-    void Spawn(Route route, float startDistance)
+    void Spawn(Route route, float startDistance, Car prefab = null)
     {
-        Car car = Instantiate(carPrefab, transform);
+        Car car = Instantiate(prefab != null ? prefab : carPrefab, transform);
         car.Init(route, tuning.carSpeed, startDistance);
 
         if (IsHorizontal(route)) spawnedHorizontal++;
@@ -207,26 +222,28 @@ public class CarSpawner : MonoBehaviour
     }
 
     /// <summary>
-    /// 事故の時刻が谷に入っていたら、次のセクションの最初の事故の時刻にずらす。最後のセクションを過ぎたら Infinity（もう予約しない）。
+    /// 事故の時刻が谷に入っていたら、次のセクションの最初の事故の時刻にずらす。
+    /// 最後のセクションは繰り返すので、次のセクションは常にある。
+    /// どのセクションでも谷を避けられない設定なら Infinity（もう予約しない）。
     /// </summary>
     float NormalizeAccidentTime(float time)
     {
         for (int guard = 0; guard < tuning.sections.Length + 1; guard++)
         {
-            if (time >= tuning.TotalDuration) return float.PositiveInfinity;
             if (!waveDirector.IsInValley(time)) return time;
 
-            int next = waveDirector.SectionIndexAt(time) + 1;
-            if (next >= tuning.sections.Length) return float.PositiveInfinity;
-            time = waveDirector.SectionStartTime(next) + tuning.sections[next].firstAccidentDelay;
+            int i = waveDirector.SectionAt(time, out float start);
+            float nextStart = start + tuning.sections[i].duration;
+            int next = waveDirector.SectionAt(nextStart, out _);
+            time = nextStart + tuning.sections[next].firstAccidentDelay;
         }
         return float.PositiveInfinity;
     }
 
     GameTuning.Section SectionAt(float time, out float timeInSection)
     {
-        int i = waveDirector.SectionIndexAt(time);
-        timeInSection = time - waveDirector.SectionStartTime(i);
+        int i = waveDirector.SectionAt(time, out float start);
+        timeInSection = time - start;
         return tuning.sections[i];
     }
 
@@ -277,6 +294,34 @@ public class CarSpawner : MonoBehaviour
             return true;
         }
         return false;
+    }
+
+    // ---- 警察車両 ----
+
+    /// <summary>
+    /// 時刻になったら、左から右へ走る車線のどれかに警察車両を 1 台出す。
+    /// ほかの車（予約済みでまだ出ていない車・別次元から戻る車も含む）とぶつかるなら出さず、少し待って試し直す。
+    /// 出したあとのつなぎの車・予約する事故の車は、警察車両も含めてぶつからないことを確かめてから出すので、
+    /// プレイヤーがずらさない限り、警察車両は事故を起こさない。
+    /// </summary>
+    void UpdatePolice()
+    {
+        if (policePrefab == null || policeRoutes.Count == 0) return;
+        if (Now < nextPoliceTime) return;
+
+        CollectOthers();
+        Shuffle(policeRoutes);
+        foreach (var route in policeRoutes)
+        {
+            Track t = new Track { route = route, speed = tuning.carSpeed, startTime = Now };
+            if (!IsSafe(t)) continue;
+
+            Spawn(route, 0f, policePrefab);
+            GameTuning.Section section = waveDirector.CurrentSection;
+            nextPoliceTime = Now + Random.Range(section.policeIntervalMin, section.policeIntervalMax);
+            return;
+        }
+        nextPoliceTime = Now + fillerRetryDelay;
     }
 
     /// <summary>
@@ -393,6 +438,15 @@ public class CarSpawner : MonoBehaviour
         route.Evaluate(0f, out Vector3 start, out _);
         route.Evaluate(route.Length, out Vector3 end, out _);
         return Mathf.Abs(end.x - start.x) >= Mathf.Abs(end.y - start.y);
+    }
+
+    /// <summary>左から右へ走る横の道路か。</summary>
+    static bool IsLeftToRight(Route route)
+    {
+        if (!IsHorizontal(route)) return false;
+        route.Evaluate(0f, out Vector3 start, out _);
+        route.Evaluate(route.Length, out Vector3 end, out _);
+        return end.x > start.x;
     }
 
     // ---- 準備 ----

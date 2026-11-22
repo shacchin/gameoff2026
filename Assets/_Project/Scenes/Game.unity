@@ -1142,11 +1142,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameUI
   gameManager: {fileID: 1988816403}
-  timerText: {fileID: 1778738954}
+  missText: {fileID: 1778738954}
   scoreText: {fileID: 1955561449}
   resultPanel: {fileID: 1887456664}
   resultText: {fileID: 989171165}
-  finishMessage: TIME UP!
+  gameOverMessage: GAME OVER
   finalScoreText: {fileID: 120123643}
 --- !u!1 &769909598
 GameObject:
@@ -1201,6 +1201,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::CarSpawner
   carPrefab: {fileID: 7145333716253320378, guid: f3ac57b5efa3fd444bee8fe85fbc2396, type: 3}
+  policePrefab: {fileID: 7145333716253320378, guid: 4d94832d793b2f74f9a7b9dbbbbea35e, type: 3}
   routes: []
   waveDirector: {fileID: 1175615350}
   minGap: 2
@@ -9036,7 +9037,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 365b5316c1d90c34dbe49c643fef24ed, type: 3}
   m_Name: 
   m_EditorClassIdentifier: Assembly-CSharp::GameManager
-  timeLimit: 60
+  maxPoliceMisses: 3
   pointsPerAccident: 100
   accidentMarkPrefab: {fileID: 2655757788010313237, guid: aea2b2f343696f543a7ed6425da11f06, type: 3}
   accidentMarkDuration: 0.8
