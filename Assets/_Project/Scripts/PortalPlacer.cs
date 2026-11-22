@@ -27,14 +27,13 @@ public class PortalPlacer : MonoBehaviour
     [Header("カーソル")]
     [Tooltip("ポータルが出る場所に出す目印（ルート + Visual の Prefab）")]
     [SerializeField] GameObject cursorPrefab;
-    [Tooltip("ポータルを置ける数を使い切っているときのカーソルの不透明度")]
-    [Range(0f, 1f)]
-    [SerializeField] float cursorFullAlpha = 0.3f;
+    [Tooltip("ポータルを置ける数を使い切っているときのカーソルの絵（置けるときの絵は Prefab の Visual に入れたもの）")]
+    [SerializeField] Sprite cursorDisabledSprite;
 
     Camera cam;
     Transform cursor;
     SpriteRenderer cursorRenderer;
-    Color cursorColor;
+    Sprite cursorEnabledSprite;
 
     void Start()
     {
@@ -54,7 +53,7 @@ public class PortalPlacer : MonoBehaviour
         {
             cursor = Instantiate(cursorPrefab, transform).transform;
             cursorRenderer = cursor.GetComponentInChildren<SpriteRenderer>();
-            if (cursorRenderer != null) cursorColor = cursorRenderer.color;
+            if (cursorRenderer != null) cursorEnabledSprite = cursorRenderer.sprite;
             cursor.gameObject.SetActive(enabled);
         }
     }
@@ -97,11 +96,9 @@ public class PortalPlacer : MonoBehaviour
         if (cursor == null) return;
 
         cursor.position = position;
-        if (cursorRenderer != null)
+        if (cursorRenderer != null && cursorDisabledSprite != null)
         {
-            Color c = cursorColor;
-            if (!canPlace) c.a *= cursorFullAlpha;
-            cursorRenderer.color = c;
+            cursorRenderer.sprite = canPlace ? cursorEnabledSprite : cursorDisabledSprite;
         }
     }
 

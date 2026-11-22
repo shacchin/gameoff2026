@@ -14,7 +14,8 @@ completed: 2026-11-22
 
 - マウスのあるマスの中心に、カーソル（`Art/cursor.aseprite`、32×32 = 1 マス）を出す
 - クリックすると、カーソルと同じ位置（マスの中心）にポータルを置く
-- ポータルを置ける数を使い切っているときは、カーソルを薄くする（`cursorFullAlpha`、初期値 0.3）
+- ポータルを置ける数を使い切っているときは、カーソルを置けない絵（`Art/cursor_disabled.aseprite`）に差し替える
+  - 11/22 変更: 最初は不透明度を下げて薄くしていたが、専用の絵を用意したので差し替えにした
 - ゲームが終わったら（置けなくなったら）カーソルを消す
 - OS のマウスカーソルはそのまま出しておく
 
@@ -30,7 +31,7 @@ completed: 2026-11-22
 
 - `Assets/_Project/Scripts/PortalPlacer.cs`
 - `Assets/_Project/Prefabs/PortalCursor.prefab`
-- `Assets/_Project/Art/cursor.aseprite`
+- `Assets/_Project/Art/cursor.aseprite`、`cursor_disabled.aseprite`
 
 ## 未決・TODO
 
@@ -41,6 +42,6 @@ completed: 2026-11-22
 - 変更: `PortalPlacer` がカーソルの Prefab を `Start` で自分の子として作り、`Update` で毎フレーム `SnapToGrid` の位置へ動かす。クリックで置く位置にも同じ値を使う。車線への吸着（`SnapToLane`、`carSpawner`、`snapDistance`）は削除した
 - 設計判断: マスの中心は `Grid.GetCellCenterWorld(WorldToCell)` で求める。Grid の原点やマスの大きさが変わっても追従させるため
 - 設計判断: カーソルの表示・非表示は `PortalPlacer` の `OnEnable` / `OnDisable` に合わせる。ゲーム終了で `enabled = false` になると一緒に消える
-- 注意点: 置けない状態の薄さは、スクリプトが `Visual` の `SpriteRenderer.color` の alpha を書き換えて出している。色を DOTween で動かす演出を足すときはぶつかる
+- 注意点: 置けないときは `Visual` の `SpriteRenderer.sprite` をスクリプトが差し替える。置けるときの絵は Prefab の Visual に入れた絵を `Start` で覚えておいて使う。Visual にアニメーションを付けて sprite を動かすとぶつかる
 - 注意点: `cursor.aseprite` は余白を切り抜いて 28×28px（0.875 マス）で読み込まれる。ピボットはキャンバスの中心なので位置はずれない。大きさを変えるときは `Visual` の Scale ではなく絵を描き直す（Pixel Perfect Camera でドットが崩れるため）
-- 動作確認: カーソルがマスの中心に吸着して表示されることをユーザーが確認した（11/22）。置けない数のときの薄さ、マスの中心に置いたポータルが縦・横の車線の車を吸い込むこと、WebGL ビルドは未確認
+- 動作確認: カーソルがマスの中心に吸着して表示されることをユーザーが確認した（11/22）。置けないときの絵の差し替えも確認した。マスの中心に置いたポータルが縦・横の車線の車を吸い込むこと、WebGL ビルドは未確認

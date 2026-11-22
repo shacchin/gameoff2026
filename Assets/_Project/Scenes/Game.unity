@@ -2148,7 +2148,7 @@ MonoBehaviour:
   lifetime: 3
   tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
   cursorPrefab: {fileID: 2974940696840234864, guid: 0c40dd45617e51940be70104035429e2, type: 3}
-  cursorFullAlpha: 0.3
+  cursorDisabledSprite: {fileID: 5889443482792760197, guid: 97ff7a97b3cd68e4a8794b54ed3437b6, type: 3}
 --- !u!1 &1557028112
 GameObject:
   m_ObjectHideFlags: 0
