@@ -82,7 +82,8 @@ public class Portal : MonoBehaviour
 
     void Capture(Car car)
     {
-        car.ShiftOut(shiftDuration);
+        // 車をポータルの中心まで進めてから飛ばす。吸い込む範囲の端で止めると、戻る位置がポータルとずれるため
+        car.ShiftOut(shiftDuration, transform.position);
 
         if (returnMarkPrefab != null)
         {

@@ -125,9 +125,18 @@ public class Car : MonoBehaviour
     /// 別次元へ飛ばす（その場で止まり、見えなくなり、ぶつからなくなる）。
     /// ぶつからなくなるのは、AccidentPredictor が走っている車だけを調べるため。
     /// 実際に戻すのは ReturnMark（ShiftIn を呼ぶ）。duration は戻る予定を CarSpawner に教えるために覚えておくだけ。
+    /// point を渡すと、経路に沿って point の位置まで進めてから止める（ポータルの中心で消え、同じ位置に戻るように）。
     /// </summary>
-    public void ShiftOut(float duration)
+    public void ShiftOut(float duration, Vector3? point = null)
     {
+        if (point.HasValue && Route != null)
+        {
+            // 進行方向に point までの距離だけ進める。ポータルは車線の中心（マスの中心）にあるので、ほぼ経路の上に乗る
+            Vector2 toPoint = point.Value - transform.position;
+            Distance = Mathf.Clamp(Distance + Vector2.Dot(toPoint, transform.right), 0f, Route.Length);
+            ApplyTransform();
+        }
+
         shiftEndTime = Time.time + duration;
         SetState(State.Shifted);
     }
