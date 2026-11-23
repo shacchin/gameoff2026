@@ -86,3 +86,9 @@ CLAUDE.local.md
 /[Aa]ssets/_Project/Art/TopDownVehicles.meta
 /[Aa]ssets/_Project/Art/TopDownCity/
 /[Aa]ssets/_Project/Art/TopDownCity.meta
+
+# BGM・効果音（ライセンス上リポジトリに含めない。入れ直す手順は README.md）
+/[Aa]ssets/_Project/Audio/BGM/
+/[Aa]ssets/_Project/Audio/BGM.meta
+/[Aa]ssets/_Project/Audio/SE/
+/[Aa]ssets/_Project/Audio/SE.meta

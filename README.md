@@ -42,6 +42,15 @@ DOTween は Asset Store のライセンスの都合でリポジトリに含め�
 2. Sprite Editor で `Slice` → Type `Grid By Cell Count`、`7` × `7`、Pivot `Center` → Slice → Apply。49 個目の空のコマができたら消す
 3. `Prefabs/Car.prefab` の `Visual` の Sprite Renderer にコマを 1 つ入れ、`DirectionalSprite` の右クリックメニュー「シートからコマを読み込む」を実行する
 
+### BGM・効果音
+
+BGM と効果音はライセンスの都合でリポジトリに含めていない（`.gitignore` で除外）。clone 直後は音が鳴らない（参照が外れる）。
+
+- `Assets/_Project/Audio/BGM/`（BGM）
+- `Assets/_Project/Audio/SE/`（効果音）
+
+インポート設定（`.meta`）も含まれないので、入れ直したら設定をやり直す。
+
 ## ドキュメント
 
 - 機能ごとの仕様: `Docs/features/`
