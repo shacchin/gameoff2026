@@ -3,10 +3,12 @@ using TMPro;
 using UnityEngine;
 using UnityEngine.InputSystem;
 using UnityEngine.Serialization;
+using UnityEngine.UI;
 
 /// <summary>
-/// 見逃した警察車両の数・スコアと結果画面の表示（Canvas に付ける）。進行は GameManager が持ち、ここは見せるだけ。
-/// 結果画面では、プレイ時間 → 事故の回数 → 破壊した警察車両の数 → スコア → ボタン の順に 1 つずつ出す。
+/// 見逃した警察車両の数・スコア・コンボと結果画面の表示（Canvas に付ける）。進行は GameManager が持ち、ここは見せるだけ。
+/// コンボは続いている間だけ、コンボ数と倍率（3 COMBO x3）と、切れるまでの残り時間のゲージを出す。
+/// 結果画面では、プレイ時間 → 事故の回数 → 最大コンボ → スコア → ボタン の順に 1 つずつ出す。
 /// 途中でクリック（か何かのキー）をしたら、残りをすべて出す。出し終えたら GameManager.EnableChoice を呼ぶ。
 /// 今は表示するだけでアニメーションはつけない。演出は Time.timeScale = 0 の間に動くので、実時間で待つ。
 /// 文字は英語にしている（TextMeshPro の標準フォントには日本語が入っていないため）。
@@ -22,6 +24,14 @@ public class GameUI : MonoBehaviour
     [Tooltip("今のスコア")]
     [SerializeField] TMP_Text scoreText;
 
+    [Header("コンボ")]
+    [Tooltip("コンボの表示のまとまり（コンボが続いている間だけ表示する）")]
+    [SerializeField] GameObject comboRoot;
+    [Tooltip("コンボ数と倍率（3 COMBO x3）")]
+    [SerializeField] TMP_Text comboText;
+    [Tooltip("コンボが切れるまでの残り時間のゲージ（Image Type を Filled にした Image）")]
+    [SerializeField] Image comboGauge;
+
     [Header("結果画面")]
     [Tooltip("結果画面のまとまり（最初は隠しておき、結果を出すときに表示する）")]
     [SerializeField] GameObject resultPanel;
@@ -31,8 +41,9 @@ public class GameUI : MonoBehaviour
     [SerializeField] TMP_Text playTimeText;
     [Tooltip("事故を起こした回数（ACCIDENTS 12）")]
     [SerializeField] TMP_Text accidentsText;
-    [Tooltip("破壊した警察車両の数（POLICE DESTROYED 2）")]
-    [SerializeField] TMP_Text policeDestroyedText;
+    [Tooltip("最大コンボ（MAX COMBO 7）")]
+    [FormerlySerializedAs("policeDestroyedText")]
+    [SerializeField] TMP_Text maxComboText;
     [Tooltip("最終スコア")]
     [SerializeField] TMP_Text finalScoreText;
     [Tooltip("RETRY / TITLE のボタンのまとまり。演出が終わってから出す")]
@@ -51,7 +62,7 @@ public class GameUI : MonoBehaviour
     Coroutine reveal;
     bool scoreShown;
 
-    TMP_Text[] Items => new[] { playTimeText, accidentsText, policeDestroyedText };
+    TMP_Text[] Items => new[] { playTimeText, accidentsText, maxComboText };
 
     void Awake()
     {
@@ -69,6 +80,18 @@ public class GameUI : MonoBehaviour
 
         if (missText != null) missText.text = $"MISS {gameManager.PoliceMisses}/{gameManager.MaxPoliceMisses}";
         if (scoreText != null) scoreText.text = $"SCORE {gameManager.Score}";
+        UpdateCombo();
+    }
+
+    void UpdateCombo()
+    {
+        int combo = gameManager.Combo;
+        if (comboRoot != null) comboRoot.SetActive(combo > 0);
+        if (combo == 0) return;
+
+        // 「×」は標準フォントに入っていないことがあるので、半角の x にする
+        if (comboText != null) comboText.text = $"{combo} COMBO x{gameManager.ComboMultiplier}";
+        if (comboGauge != null) comboGauge.fillAmount = gameManager.ComboTimeRatio;
     }
 
     void ShowResult(GameManager.State result)
@@ -78,7 +101,7 @@ public class GameUI : MonoBehaviour
         int seconds = Mathf.FloorToInt(gameManager.PlayTime);
         if (playTimeText != null) playTimeText.text = $"PLAY TIME {seconds / 60:00}:{seconds % 60:00}";
         if (accidentsText != null) accidentsText.text = $"ACCIDENTS {gameManager.AccidentCount}";
-        if (policeDestroyedText != null) policeDestroyedText.text = $"POLICE DESTROYED {gameManager.PoliceDestroyedCount}";
+        if (maxComboText != null) maxComboText.text = $"MAX COMBO {gameManager.MaxCombo}";
         if (finalScoreText != null) finalScoreText.text = $"SCORE {gameManager.Score}";
 
         // 順番に出すものは、いったん全部隠す
