@@ -21,6 +21,9 @@ public class Car : MonoBehaviour
     /// <summary>警察車両が事故を起こさずに経路の末尾まで走り切った（見逃した）ときに呼ばれる。GameManager が見逃しを数える。</summary>
     public static event System.Action<Car> PoliceEscaped;
 
+    /// <summary>警察車両が事故で消えたときに呼ばれる。GameManager が破壊した数を数える（結果画面に出す）。</summary>
+    public static event System.Action<Car> PoliceDestroyed;
+
     [Header("種類")]
     [Tooltip("警察車両か。オンにすると、経路の末尾まで走り切ったときに見逃しとして数える")]
     [SerializeField] bool isPolice;
@@ -147,6 +150,7 @@ public class Car : MonoBehaviour
     /// </summary>
     public void Crash()
     {
+        if (isPolice) PoliceDestroyed?.Invoke(this);
         gameObject.SetActive(false);
         Destroy(gameObject);
     }

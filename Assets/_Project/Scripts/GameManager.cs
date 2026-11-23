@@ -12,8 +12,9 @@ using UnityEngine.Serialization;
 /// - 事故（AccidentPredictor.AccidentHappened）が起きたらスコアを加え、事故の地点にマークを出す。ゲームは止めない
 /// - 制限時間はない。警察車両を maxPoliceMisses 台見逃したら（Car.PoliceEscaped）ゲームオーバー。
 ///   Time.timeScale = 0 で全体を止め、GameEnded で知らせる
-/// - 少し待ってから ResultShown で結果を出す。そのあと Retry か GoToTitle で次へ進む
-///   （GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
+/// - 少し待ってから ResultShown で結果を出す。GameUI が結果の演出を終えて EnableChoice を呼んだら、
+///   Retry か GoToTitle で次へ進める（GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
+/// - 結果画面に出す数（プレイ時間・事故の回数・破壊した警察車両の数）もここで数える
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -55,7 +56,7 @@ public class GameManager : MonoBehaviour
     [Tooltip("終わってから結果を出すまでの時間（秒）")]
     [FormerlySerializedAs("clearResultDelay")]
     [SerializeField] float resultDelay = 0.5f;
-    [Tooltip("結果を出してから、リトライ／タイトルへの入力を受け付けるまでの時間（秒）。慌てた入力で結果を見ずに進まないように")]
+    [Tooltip("結果の演出が終わってから、リトライ／タイトルへの入力を受け付けるまでの時間（秒）。演出を飛ばしたクリックで、そのまま進まないように")]
     [FormerlySerializedAs("retryInputDelay")]
     [SerializeField] float choiceInputDelay = 0.3f;
 
@@ -74,7 +75,17 @@ public class GameManager : MonoBehaviour
     /// <summary>今のスコア。GameUI が表示に使う。</summary>
     public int Score { get; private set; }
 
+    /// <summary>事故を起こした回数。結果画面に出す。</summary>
+    public int AccidentCount { get; private set; }
+
+    /// <summary>事故で破壊した警察車両の数。結果画面に出す。</summary>
+    public int PoliceDestroyedCount { get; private set; }
+
+    /// <summary>ゲームを始めてからの時間（秒）。ゲームオーバーで止まる。結果画面に出す。</summary>
+    public float PlayTime { get; private set; }
+
     bool canChoose;
+    bool choiceEnabled;
 
     void Awake()
     {
@@ -88,17 +99,23 @@ public class GameManager : MonoBehaviour
     {
         AccidentPredictor.AccidentHappened += OnAccident;
         Car.PoliceEscaped += OnPoliceEscaped;
+        Car.PoliceDestroyed += OnPoliceDestroyed;
     }
 
     void OnDisable()
     {
         AccidentPredictor.AccidentHappened -= OnAccident;
         Car.PoliceEscaped -= OnPoliceEscaped;
+        Car.PoliceDestroyed -= OnPoliceDestroyed;
     }
 
     void Update()
     {
-        if (CurrentState == State.Playing) return;
+        if (CurrentState == State.Playing)
+        {
+            PlayTime += Time.deltaTime;
+            return;
+        }
 
         Keyboard keyboard = Keyboard.current;
         if (keyboard == null) return;
@@ -127,6 +144,7 @@ public class GameManager : MonoBehaviour
         if (CurrentState != State.Playing) return;
 
         Score += pointsPerAccident;
+        AccidentCount++;
         AudioManager.PlaySe(AudioManager.Se.Crash);
         ShowAccidentMark(position);
         ShowScorePopup(position, pointsPerAccident);
@@ -139,6 +157,12 @@ public class GameManager : MonoBehaviour
         PoliceMisses++;
         AudioManager.PlaySe(AudioManager.Se.PoliceMiss);
         if (PoliceMisses >= maxPoliceMisses) End();
+    }
+
+    void OnPoliceDestroyed(Car car)
+    {
+        if (CurrentState != State.Playing) return;
+        PoliceDestroyedCount++;
     }
 
     void End()
@@ -155,8 +179,21 @@ public class GameManager : MonoBehaviour
         // timeScale = 0 の間も進むように、実時間で待つ
         yield return new WaitForSecondsRealtime(delay);
         ResultShown?.Invoke(CurrentState);
+    }
 
-        yield return new WaitForSecondsRealtime(choiceInputDelay);
+    /// <summary>
+    /// 結果の演出が終わったら GameUI が呼ぶ。少し待ってから、リトライ／タイトルへの入力を受け付け始める。
+    /// </summary>
+    public void EnableChoice()
+    {
+        if (CurrentState == State.Playing || choiceEnabled) return;
+        choiceEnabled = true;
+        StartCoroutine(EnableChoiceAfter(choiceInputDelay));
+    }
+
+    IEnumerator EnableChoiceAfter(float delay)
+    {
+        yield return new WaitForSecondsRealtime(delay);
         canChoose = true;
     }
 
