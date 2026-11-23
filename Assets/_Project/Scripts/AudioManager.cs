@@ -68,6 +68,9 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SeSetting portalRelease = new SeSetting();
     [Tooltip("オンのとき、戻りの音を「鳴り終わる瞬間に車が戻る」ように、音の長さのぶん早めに鳴らす（逆再生の音は最後に盛り上がるため）")]
     [SerializeField] bool releaseEndsOnReturn = true;
+    [Tooltip("Release Ends On Return がオンのとき、戻りの音の鳴らし始めをこの秒数だけ遅らせる（飲み込みの音と重ならないように）。音の後ろは車が戻ったあとにはみ出す。音の長さ以上にすると、車が戻った瞬間に鳴る")]
+    [Min(0f)]
+    [SerializeField] float releaseDelay = 0f;
     [Tooltip("結果画面で項目（プレイ時間・事故の回数など）を 1 つ出したときの音")]
     [SerializeField] SeSetting resultItem = new SeSetting();
     [Tooltip("結果画面でスコアを出したときの音")]
@@ -83,7 +86,7 @@ public class AudioManager : MonoBehaviour
 
     /// <summary>
     /// 戻りの音を、車が戻る何秒前に鳴らすか（ReturnMark が使う）。
-    /// 音が鳴り終わる瞬間に車が戻るように、音の長さを返す。
+    /// 音が鳴り終わる瞬間に車が戻るように、音の長さを返す。Release Delay のぶんだけ短くする（遅く鳴らす）。
     /// </summary>
     public static float ReleaseLeadTime
     {
@@ -91,7 +94,8 @@ public class AudioManager : MonoBehaviour
         {
             if (instance == null || !instance.releaseEndsOnReturn) return 0f;
             AudioClip clip = instance.portalRelease.clip;
-            return clip != null ? clip.length : 0f;
+            if (clip == null) return 0f;
+            return Mathf.Max(clip.length - instance.releaseDelay, 0f);
         }
     }
 

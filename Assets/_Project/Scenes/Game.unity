@@ -1741,6 +1741,7 @@ MonoBehaviour:
     maxDuration: 0
     fadeOut: 0.2
   releaseEndsOnReturn: 1
+  releaseDelay: 0.3
   resultItem:
     clip: {fileID: 8300000, guid: 02f448bfcd01a8e4baa4c583ef507023, type: 3}
     volume: 1
