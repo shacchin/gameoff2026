@@ -38,6 +38,7 @@ public class ReturnMark : MonoBehaviour
     float returnDistance; // 車が止まっている（戻る）位置の、経路の先頭からの距離
     Transform ghost;
     SpriteRenderer ghostSprite;
+    bool releaseSoundPlayed;
 
     void OnEnable() => All.Add(this);
     void OnDisable() => All.Remove(this);
@@ -79,6 +80,7 @@ public class ReturnMark : MonoBehaviour
     void Update()
     {
         remaining -= Time.deltaTime;
+        UpdateReleaseSound();
         if (remaining > 0f)
         {
             UpdateText();
@@ -88,6 +90,19 @@ public class ReturnMark : MonoBehaviour
 
         if (car != null) car.ShiftIn();
         Destroy(gameObject);
+    }
+
+    /// <summary>
+    /// 戻りの音（飲み込みの逆再生）は最後に盛り上がるので、鳴り終わる瞬間に車が戻るよう、音の長さのぶん早めに鳴らす。
+    /// 別次元にいる時間より音が長いときは、目印を出した直後に鳴る。
+    /// </summary>
+    void UpdateReleaseSound()
+    {
+        if (releaseSoundPlayed || car == null) return;
+        if (remaining > AudioManager.ReleaseLeadTime) return;
+
+        AudioManager.PlaySe(AudioManager.Se.PortalRelease);
+        releaseSoundPlayed = true;
     }
 
     void OnDestroy()

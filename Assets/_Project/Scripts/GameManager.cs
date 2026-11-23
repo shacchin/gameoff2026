@@ -82,6 +82,8 @@ public class GameManager : MonoBehaviour
         Time.timeScale = 1f;
     }
 
+    void Start() => AudioManager.PlayBgm(AudioManager.Bgm.Game);
+
     void OnEnable()
     {
         AccidentPredictor.AccidentHappened += OnAccident;
@@ -108,6 +110,7 @@ public class GameManager : MonoBehaviour
     public void Retry()
     {
         if (!canChoose) return;
+        AudioManager.PlaySe(AudioManager.Se.Decide);
         SceneManager.LoadScene(SceneManager.GetActiveScene().buildIndex);
     }
 
@@ -115,6 +118,7 @@ public class GameManager : MonoBehaviour
     public void GoToTitle()
     {
         if (!canChoose) return;
+        AudioManager.PlaySe(AudioManager.Se.Decide);
         SceneManager.LoadScene(titleSceneName);
     }
 
@@ -123,6 +127,7 @@ public class GameManager : MonoBehaviour
         if (CurrentState != State.Playing) return;
 
         Score += pointsPerAccident;
+        AudioManager.PlaySe(AudioManager.Se.Crash);
         ShowAccidentMark(position);
         ShowScorePopup(position, pointsPerAccident);
     }
@@ -132,6 +137,7 @@ public class GameManager : MonoBehaviour
         if (CurrentState != State.Playing) return;
 
         PoliceMisses++;
+        AudioManager.PlaySe(AudioManager.Se.PoliceMiss);
         if (PoliceMisses >= maxPoliceMisses) End();
     }
 
@@ -139,6 +145,7 @@ public class GameManager : MonoBehaviour
     {
         CurrentState = State.GameOver;
         Time.timeScale = 0f;
+        AudioManager.StopBgm();
         GameEnded?.Invoke(CurrentState);
         StartCoroutine(ShowResultAfter(resultDelay));
     }

@@ -112,6 +112,7 @@ public class PortalPlacer : MonoBehaviour
         {
             Portal portal = Instantiate(portalPrefab, position, Quaternion.identity, transform);
             portal.Init(openDelay, lifetime, tuning.shiftDuration, returnMarkPrefab);
+            AudioManager.PlaySe(AudioManager.Se.PortalPlace);
         }
     }
 

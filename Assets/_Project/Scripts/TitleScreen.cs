@@ -23,12 +23,16 @@ public class TitleScreen : MonoBehaviour
         shownTime = Time.unscaledTime;
     }
 
+    // WebGL ではページを最初に操作するまで音が出ない。それまでに Play() した BGM は、最初の操作のあとで聞こえ始める
+    void Start() => AudioManager.PlayBgm(AudioManager.Bgm.Title);
+
     void Update()
     {
         if (Time.unscaledTime - shownTime < inputDelay) return;
 
         if (IsAnyInputPressed())
         {
+            AudioManager.PlaySe(AudioManager.Se.Decide);
             SceneManager.LoadScene(gameSceneName);
         }
     }

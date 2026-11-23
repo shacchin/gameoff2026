@@ -317,6 +317,7 @@ public class CarSpawner : MonoBehaviour
             if (!IsSafe(t)) continue;
 
             Spawn(route, 0f, policePrefab);
+            AudioManager.PlaySe(AudioManager.Se.PoliceAppear);
             GameTuning.Section section = waveDirector.CurrentSection;
             nextPoliceTime = Now + Random.Range(section.policeIntervalMin, section.policeIntervalMax);
             return;

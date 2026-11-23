@@ -4,10 +4,9 @@ using UnityEngine;
 /// <summary>
 /// 車をポータルで別次元へ飛ばした瞬間の手触り（Systems の子に 1 つ置く）。
 /// - 車の絵の写し（ゴースト）を作り、回しながら縮めてポータルの中心へ吸い込ませる
-/// - 吸い込みの SE を鳴らす（毎回ピッチを少し変えて、連続で飛ばしても単調にしない）
+/// - 吸い込みの SE を鳴らす（音そのものと音量・ピッチのばらつきは AudioManager で設定する）
 /// 本物の車は Portal が吸い込んだ瞬間に見えなくなるので、見えているのはゴーストだけ。
 /// </summary>
-[RequireComponent(typeof(AudioSource))]
 public class ShiftFeedback : MonoBehaviour
 {
     [Header("吸い込み")]
@@ -18,41 +17,13 @@ public class ShiftFeedback : MonoBehaviour
     [Tooltip("ゴーストの描画順（docs/sorting-order.md の「車の上の演出」帯）")]
     [SerializeField] int ghostSortingOrder = 100;
 
-    [Header("音")]
-    [SerializeField] AudioClip shiftClip;
-    [Range(0f, 1f)]
-    [SerializeField] float volume = 0.8f;
-    [Tooltip("ピッチのばらつき（±）")]
-    [SerializeField] float pitchJitter = 0.08f;
-    [Tooltip("同時に鳴らせる数。ピッチは AudioSource ごとに持つので、鳴っている途中の音の音程を変えないよう交互に使う")]
-    [SerializeField] int voiceCount = 3;
-
-    AudioSource[] audioSources;
-    int nextVoice;
-
-    void Awake()
-    {
-        // 付いている AudioSource を 1 つ目にして、足りない分を同じ設定で足す
-        var first = GetComponent<AudioSource>();
-        audioSources = new AudioSource[Mathf.Max(voiceCount, 1)];
-        audioSources[0] = first;
-        for (int i = 1; i < audioSources.Length; i++)
-        {
-            var source = gameObject.AddComponent<AudioSource>();
-            source.playOnAwake = false;
-            source.outputAudioMixerGroup = first.outputAudioMixerGroup;
-            source.spatialBlend = first.spatialBlend;
-            audioSources[i] = source;
-        }
-    }
-
     void OnEnable() => Portal.CarShifted += OnCarShifted;
     void OnDisable() => Portal.CarShifted -= OnCarShifted;
 
     void OnCarShifted(Car car, Vector3 portalPosition)
     {
         SpawnGhost(car, portalPosition);
-        PlaySound();
+        AudioManager.PlaySe(AudioManager.Se.PortalSwallow);
     }
 
     void SpawnGhost(Car car, Vector3 portalPosition)
@@ -76,20 +47,5 @@ public class ShiftFeedback : MonoBehaviour
             .Join(visual.DOLocalRotate(new Vector3(0f, 0f, suckSpin), suckDuration, RotateMode.LocalAxisAdd).SetEase(Ease.InQuad))
             .OnComplete(() => Destroy(root.gameObject))
             .SetLink(root.gameObject);
-    }
-
-    void PlaySound()
-    {
-        if (shiftClip == null) return;
-
-        // いちばん前に鳴らした AudioSource を使い回す。Play() はその AudioSource の前の音を止めてから鳴らすので、
-        // ピッチを変えても鳴っている途中の音には効かない
-        AudioSource source = audioSources[nextVoice];
-        nextVoice = (nextVoice + 1) % audioSources.Length;
-
-        source.clip = shiftClip;
-        source.volume = volume;
-        source.pitch = 1f + Random.Range(-pitchJitter, pitchJitter);
-        source.Play();
     }
 }
