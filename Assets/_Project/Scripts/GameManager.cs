@@ -10,11 +10,12 @@ using UnityEngine.Serialization;
 /// <summary>
 /// 1 プレイの進行（プレイ中／ゲームオーバー）と、見逃した警察車両の数・スコアを受け持つ（Systems の子に 1 つ置く）。
 /// - 事故（AccidentPredictor.AccidentHappened）が起きたらスコアを加え、事故の地点にマークを出す。ゲームは止めない
+/// - 前の事故から comboWindow 秒以内に次の事故が起きたらコンボが続き、点が「基本の点 × 倍率」になる（倍率は最大 maxComboMultiplier）
 /// - 制限時間はない。警察車両を maxPoliceMisses 台見逃したら（Car.PoliceEscaped）ゲームオーバー。
 ///   Time.timeScale = 0 で全体を止め、GameEnded で知らせる
 /// - 少し待ってから ResultShown で結果を出す。GameUI が結果の演出を終えて EnableChoice を呼んだら、
 ///   Retry か GoToTitle で次へ進める（GameUI のボタンから呼ぶ。キーでも R ＝ リトライ、T ＝ タイトルへ）
-/// - 結果画面に出す数（プレイ時間・事故の回数・破壊した警察車両の数）もここで数える
+/// - 結果画面に出す数（プレイ時間・事故の回数・最大コンボ）もここで数える
 /// </summary>
 public class GameManager : MonoBehaviour
 {
@@ -35,8 +36,12 @@ public class GameManager : MonoBehaviour
     [SerializeField] int maxPoliceMisses = 3;
 
     [Header("スコア")]
-    [Tooltip("事故 1 件で加える点数")]
+    [Tooltip("事故 1 件で加える点数（コンボの倍率をかける前）")]
     [SerializeField] int pointsPerAccident = 100;
+    [Tooltip("前の事故からこの秒数以内に次の事故が起きたら、コンボが続く")]
+    [SerializeField] float comboWindow = 3f;
+    [Tooltip("コンボの倍率の上限（5 なら 1 件の点は最大で 基本の点 × 5）")]
+    [SerializeField] int maxComboMultiplier = 5;
 
     [Header("事故の演出")]
     [Tooltip("事故の地点に出すマークの Prefab（子の Visual を拡大縮小して目立たせる）")]
@@ -78,12 +83,22 @@ public class GameManager : MonoBehaviour
     /// <summary>事故を起こした回数。結果画面に出す。</summary>
     public int AccidentCount { get; private set; }
 
-    /// <summary>事故で破壊した警察車両の数。結果画面に出す。</summary>
-    public int PoliceDestroyedCount { get; private set; }
+    /// <summary>今のコンボ数（続いている事故の件数）。0 ならコンボなし。GameUI が表示に使う。</summary>
+    public int Combo { get; private set; }
+
+    /// <summary>今のコンボで点にかける倍率（コンボ数。ただし maxComboMultiplier まで）。</summary>
+    public int ComboMultiplier => Mathf.Min(Combo, maxComboMultiplier);
+
+    /// <summary>コンボが切れるまでの残り時間の割合（1 ＝ 事故の直後、0 ＝ 切れた）。GameUI のゲージに使う。</summary>
+    public float ComboTimeRatio => comboWindow > 0f ? Mathf.Clamp01(comboTimeLeft / comboWindow) : 0f;
+
+    /// <summary>このプレイで一番続いたコンボ数。結果画面に出す。</summary>
+    public int MaxCombo { get; private set; }
 
     /// <summary>ゲームを始めてからの時間（秒）。ゲームオーバーで止まる。結果画面に出す。</summary>
     public float PlayTime { get; private set; }
 
+    float comboTimeLeft;
     bool canChoose;
     bool choiceEnabled;
 
@@ -99,14 +114,12 @@ public class GameManager : MonoBehaviour
     {
         AccidentPredictor.AccidentHappened += OnAccident;
         Car.PoliceEscaped += OnPoliceEscaped;
-        Car.PoliceDestroyed += OnPoliceDestroyed;
     }
 
     void OnDisable()
     {
         AccidentPredictor.AccidentHappened -= OnAccident;
         Car.PoliceEscaped -= OnPoliceEscaped;
-        Car.PoliceDestroyed -= OnPoliceDestroyed;
     }
 
     void Update()
@@ -114,6 +127,7 @@ public class GameManager : MonoBehaviour
         if (CurrentState == State.Playing)
         {
             PlayTime += Time.deltaTime;
+            UpdateCombo();
             return;
         }
 
@@ -143,11 +157,30 @@ public class GameManager : MonoBehaviour
     {
         if (CurrentState != State.Playing) return;
 
-        Score += pointsPerAccident;
+        // 時間内ならコンボが続く。切れていれば UpdateCombo が 0 に戻しているので 1 から数え直す
+        Combo++;
+        comboTimeLeft = comboWindow;
+        MaxCombo = Mathf.Max(MaxCombo, Combo);
+
+        int points = pointsPerAccident * ComboMultiplier;
+        Score += points;
         AccidentCount++;
         AudioManager.PlaySe(AudioManager.Se.Crash);
         ShowAccidentMark(position);
-        ShowScorePopup(position, pointsPerAccident);
+        ShowScorePopup(position, points);
+    }
+
+    /// <summary>コンボが切れるまでの残り時間を減らし、0 になったらコンボを切る。</summary>
+    void UpdateCombo()
+    {
+        if (Combo == 0) return;
+
+        comboTimeLeft -= Time.deltaTime;
+        if (comboTimeLeft <= 0f)
+        {
+            comboTimeLeft = 0f;
+            Combo = 0;
+        }
     }
 
     void OnPoliceEscaped(Car car)
@@ -157,12 +190,6 @@ public class GameManager : MonoBehaviour
         PoliceMisses++;
         AudioManager.PlaySe(AudioManager.Se.PoliceMiss);
         if (PoliceMisses >= maxPoliceMisses) End();
-    }
-
-    void OnPoliceDestroyed(Car car)
-    {
-        if (CurrentState != State.Playing) return;
-        PoliceDestroyedCount++;
     }
 
     void End()
