@@ -6457,7 +6457,7 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: GAME TITLE
+  m_text: PORTAL PANIC
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: ccf276e10f383d54896ce74c35bc830a, type: 2}
   m_sharedMaterial: {fileID: 4512050293116690484, guid: ccf276e10f383d54896ce74c35bc830a, type: 2}
@@ -6484,8 +6484,8 @@ MonoBehaviour:
   m_faceColor:
     serializedVersion: 2
     rgba: 4294967295
-  m_fontSize: 72
-  m_fontSizeBase: 72
+  m_fontSize: 64
+  m_fontSizeBase: 64
   m_fontWeight: 400
   m_enableAutoSizing: 0
   m_fontSizeMin: 18
