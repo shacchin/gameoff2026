@@ -24,6 +24,7 @@ completed: 2026-10-29
 - ビルドターゲットは Web
 - Compression Format: **Gzip** + Decompression Fallback ON。Brotli は itch.io で読み込みエラーになりやすいため
 - キャンバスサイズ: **960×540**（16:9。内部解像度と同じで等倍表示）
+- WebGL Template: **Minimal**。Default だとキャンバスの下に Unity ロゴのフッター（約 40px）が付き、itch.io の 960×540 の枠からはみ出して画面が上にずれるため。全画面ボタンは itch.io 側で出す
 - Company Name: `Shacchin`
 
 ### エディタ
