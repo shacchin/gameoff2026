@@ -29,6 +29,7 @@
 | オブジェクト | 設定する場所 | Order in Layer |
 |---|---|---|
 | `Grid > Map`（Tilemap） | シーン / Tilemap Renderer | -200 |
+| Title シーンの `Grid > Map`（草原と道路の Tilemap） | シーン / Tilemap Renderer | -200 |
 | `Portal`（入口） | Prefab / `Visual` の Sprite Renderer | -100 |
 | `ReturnMark`（出口） | Prefab / `Visual` の Sprite Renderer | -99 |
 | `ReturnGhost`（戻ってくる車の半透明の写し） | `ReturnMark` の Ghost Sorting Order（実行時に作る） | -1 |

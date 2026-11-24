@@ -24,7 +24,12 @@ public class ReturnMark : MonoBehaviour
     [Tooltip("アイコンの上端から文字の中心までの距離（マス）。文字がアイコンに被るときに増やす")]
     [SerializeField] float textOffset = 0.4f;
 
+    [Tooltip("戻りの音を鳴らすか（タイトルの背景ではオフ）")]
+    [SerializeField] bool playReleaseSound = true;
+
     [Header("走ってくるゴースト")]
+    [Tooltip("ゴーストを出すか（タイトルの背景ではオフ）")]
+    [SerializeField] bool showGhost = true;
     [Tooltip("ゴーストの透明度（0〜1）")]
     [Range(0f, 1f)]
     [SerializeField] float ghostAlpha = 0.4f;
@@ -98,7 +103,7 @@ public class ReturnMark : MonoBehaviour
     /// </summary>
     void UpdateReleaseSound()
     {
-        if (releaseSoundPlayed || car == null) return;
+        if (!playReleaseSound || releaseSoundPlayed || car == null) return;
         if (remaining > AudioManager.ReleaseLeadTime) return;
 
         AudioManager.PlaySe(AudioManager.Se.PortalRelease);
@@ -121,7 +126,9 @@ public class ReturnMark : MonoBehaviour
     /// </summary>
     void CreateGhost()
     {
-        ghost = new GameObject("ReturnGhost").transform;
+        if (!showGhost) return;
+
+        ghost =new GameObject("ReturnGhost").transform;
         ghost.SetParent(transform.parent, false);
 
         ghostSprite = car.CreateVisualCopy(ghost, ghostSortingOrder, followDirection: true);

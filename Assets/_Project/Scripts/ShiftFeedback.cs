@@ -17,13 +17,17 @@ public class ShiftFeedback : MonoBehaviour
     [Tooltip("ゴーストの描画順（docs/sorting-order.md の「車の上の演出」帯）")]
     [SerializeField] int ghostSortingOrder = 100;
 
+    [Header("音")]
+    [Tooltip("吸い込みの SE を鳴らすか（タイトルの背景ではオフ）")]
+    [SerializeField] bool playSound = true;
+
     void OnEnable() => Portal.CarShifted += OnCarShifted;
     void OnDisable() => Portal.CarShifted -= OnCarShifted;
 
     void OnCarShifted(Car car, Vector3 portalPosition)
     {
         SpawnGhost(car, portalPosition);
-        AudioManager.PlaySe(AudioManager.Se.PortalSwallow);
+        if (playSound) AudioManager.PlaySe(AudioManager.Se.PortalSwallow);
     }
 
     void SpawnGhost(Car car, Vector3 portalPosition)
