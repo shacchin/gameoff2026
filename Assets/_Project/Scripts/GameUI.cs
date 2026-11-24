@@ -11,7 +11,7 @@ using UnityEngine.UI;
 /// 結果画面では、プレイ時間 → 事故の回数 → 最大コンボ → スコア → ボタン の順に 1 つずつ出す。
 /// 途中でクリック（か何かのキー）をしたら、残りをすべて出す。出し終えたら GameManager.EnableChoice を呼ぶ。
 /// 今は表示するだけでアニメーションはつけない。演出は Time.timeScale = 0 の間に動くので、実時間で待つ。
-/// 文字は英語にしている（TextMeshPro の標準フォントには日本語が入っていないため）。
+/// 文字は英語にしている（フォントの Press Start 2P には日本語が入っていないため）。
 /// </summary>
 public class GameUI : MonoBehaviour
 {
