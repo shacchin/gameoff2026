@@ -38,3 +38,4 @@
 | [09-title-and-flow.md](features/09-title-and-flow.md) | タイトル画面とゲームの流れ（タイトル→プレイ→結果→リトライ／タイトルへ） |
 | [12-accident-score.md](features/12-accident-score.md) | 事故でスコアを稼ぐ（ルール転換・スコア表示・「+100」） |
 | [20-title-traffic.md](features/20-title-traffic.md) | タイトル画面の背景の車（1 本の道路に車を流し、ときどきポータルで飛ばす） |
+| [21-title-menu.md](features/21-title-menu.md) | タイトルのメニュー（START / HELP / CREDITS） |

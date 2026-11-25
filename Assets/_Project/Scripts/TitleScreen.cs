@@ -4,8 +4,9 @@ using UnityEngine.SceneManagement;
 
 /// <summary>
 /// タイトル画面（Title シーンの Systems の子に 1 つ置く）。
-/// クリックか何かのキーで Game シーンを読み込んでプレイを始める。
-/// タイトルの文字はシーン上の TextMeshPro をそのまま書き換えれば差し替えられる（ここでは触らない）。
+/// START / HELP / CREDITS のメニューをマウスで選ばせる（ゲーム本体もマウスだけで遊ぶので、キー操作は付けない）。
+/// START で Game シーンを読み込み、HELP / CREDITS は同じシーンのパネルを重ねて出す。
+/// タイトルの文字・パネルの文章はシーン上の TextMeshPro をそのまま書き換えれば差し替えられる（ここでは触らない）。
 /// </summary>
 public class TitleScreen : MonoBehaviour
 {
@@ -14,13 +15,36 @@ public class TitleScreen : MonoBehaviour
     [Tooltip("タイトルを出してから入力を受け付けるまでの時間（秒）。結果画面から戻った直後の押しっぱなしで、すぐ始まらないように")]
     [SerializeField] float inputDelay = 0.3f;
 
+    [Header("メニュー")]
+    [SerializeField] TitleMenuItem[] menuItems;
+    [SerializeField] GameObject helpPanel;
+    [SerializeField] GameObject creditsPanel;
+    [Tooltip("HELP / CREDITS パネルの BACK（パネルごとに 1 つずつ）")]
+    [SerializeField] TitleMenuItem[] backItems;
+
     float shownTime;
+    int selectedIndex;
+    GameObject openPanel;
+    bool loading;
+
+    bool AcceptsInput => !loading && Time.unscaledTime - shownTime >= inputDelay;
 
     void Awake()
     {
         // 結果画面は Time.timeScale = 0 のまま戻ってくるので、ここで戻す
         Time.timeScale = 1f;
         shownTime = Time.unscaledTime;
+
+        foreach (TitleMenuItem item in menuItems) item.Init(this);
+        foreach (TitleMenuItem item in backItems)
+        {
+            item.Init(this);
+            item.SetSelected(true); // パネルの中の項目は BACK だけなので、いつも選択中に見せる
+        }
+
+        if (helpPanel != null) helpPanel.SetActive(false);
+        if (creditsPanel != null) creditsPanel.SetActive(false);
+        Select(-1, playSound: false); // 最初は何も選ばない（カーソルを乗せている間だけ選択中になる）
     }
 
     // WebGL ではページを最初に操作するまで音が出ない。それまでに Play() した BGM は、最初の操作のあとで聞こえ始める
@@ -28,21 +52,83 @@ public class TitleScreen : MonoBehaviour
 
     void Update()
     {
-        if (Time.unscaledTime - shownTime < inputDelay) return;
+        if (!AcceptsInput) return;
 
-        if (IsAnyInputPressed())
+        // メニューの選択・決定はマウスだけ（TitleMenuItem から届く）。ここではパネルを閉じる操作だけを見る
+        if (openPanel == null) return;
+
+        Mouse mouse = Mouse.current;
+        Keyboard keyboard = Keyboard.current;
+        bool back = (mouse != null && mouse.rightButton.wasPressedThisFrame)
+            || (keyboard != null && keyboard.escapeKey.wasPressedThisFrame);
+        if (back) ClosePanel();
+    }
+
+    public void OnItemHover(TitleMenuItem item)
+    {
+        if (openPanel != null || loading) return;
+        int index = System.Array.IndexOf(menuItems, item);
+        if (index >= 0 && index != selectedIndex) Select(index, playSound: true);
+    }
+
+    // カーソルが項目から外れたら、何も選んでいない状態に戻す（ほかの項目に移ったときは、そちらの OnItemHover が選び直す）
+    public void OnItemExit(TitleMenuItem item)
+    {
+        if (loading) return;
+        int index = System.Array.IndexOf(menuItems, item);
+        if (index >= 0 && index == selectedIndex) Select(-1, playSound: false);
+    }
+
+    public void OnItemClick(TitleMenuItem item)
+    {
+        if (!AcceptsInput) return;
+        // パネルを出している間は BACK だけ、出していないときはメニューの項目だけを受け付ける
+        bool isBack = item.ItemAction == TitleMenuItem.Action.Back;
+        if (isBack != (openPanel != null)) return;
+        Choose(item.ItemAction);
+    }
+
+    /// <summary>index 番目の項目を選択中にする。-1 なら何も選ばない。</summary>
+    void Select(int index, bool playSound)
+    {
+        selectedIndex = index;
+        for (int i = 0; i < menuItems.Length; i++) menuItems[i].SetSelected(i == index);
+        if (playSound) AudioManager.PlaySe(AudioManager.Se.Cursor);
+    }
+
+    void Choose(TitleMenuItem.Action action)
+    {
+        switch (action)
         {
-            AudioManager.PlaySe(AudioManager.Se.Decide);
-            SceneManager.LoadScene(gameSceneName);
+            case TitleMenuItem.Action.Start:
+                loading = true;
+                AudioManager.PlaySe(AudioManager.Se.Decide);
+                SceneManager.LoadScene(gameSceneName);
+                break;
+            case TitleMenuItem.Action.Help:
+                OpenPanel(helpPanel);
+                break;
+            case TitleMenuItem.Action.Credits:
+                OpenPanel(creditsPanel);
+                break;
+            case TitleMenuItem.Action.Back:
+                ClosePanel();
+                break;
         }
     }
 
-    static bool IsAnyInputPressed()
+    void OpenPanel(GameObject panel)
     {
-        Mouse mouse = Mouse.current;
-        if (mouse != null && mouse.leftButton.wasPressedThisFrame) return true;
+        if (panel == null) return;
+        AudioManager.PlaySe(AudioManager.Se.Decide);
+        panel.SetActive(true);
+        openPanel = panel;
+    }
 
-        Keyboard keyboard = Keyboard.current;
-        return keyboard != null && keyboard.anyKey.wasPressedThisFrame;
+    void ClosePanel()
+    {
+        AudioManager.PlaySe(AudioManager.Se.Cursor);
+        openPanel.SetActive(false);
+        openPanel = null;
     }
 }

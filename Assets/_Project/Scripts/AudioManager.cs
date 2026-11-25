@@ -28,6 +28,7 @@ public class AudioManager : MonoBehaviour
         PortalRelease, // 車が別次元から戻ってきた（飲み込みの音を逆再生したもの）
         ResultItem,    // 結果画面で項目を 1 つ出した
         ResultScore,   // 結果画面でスコアを出した（演出を飛ばしたときも）
+        Cursor,        // タイトルのメニューで選択を動かした・パネルを閉じた
     }
 
     [Serializable]
@@ -75,6 +76,8 @@ public class AudioManager : MonoBehaviour
     [SerializeField] SeSetting resultItem = new SeSetting();
     [Tooltip("結果画面でスコアを出したときの音")]
     [SerializeField] SeSetting resultScore = new SeSetting();
+    [Tooltip("タイトルのメニューで選択を動かしたとき・HELP / CREDITS を閉じたときの音")]
+    [SerializeField] SeSetting cursor = new SeSetting();
 
     static AudioManager instance;
 
@@ -244,6 +247,7 @@ public class AudioManager : MonoBehaviour
             case Se.PortalRelease: return portalRelease;
             case Se.ResultItem: return resultItem;
             case Se.ResultScore: return resultScore;
+            case Se.Cursor: return cursor;
             default: return null;
         }
     }

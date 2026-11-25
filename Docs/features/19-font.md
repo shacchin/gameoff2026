@@ -13,6 +13,7 @@ TextMeshPro の標準フォント（LiberationSans）をやめて、ドット絵
 ## 仕様
 
 - 画面の文字はすべて Press Start 2P にする（スコア・コンボ・見逃し・結果画面・タイトル・事故のポップアップ）
+  - 例外: タイトルの HELP / CREDITS の文章は Pixelify Sans（21）
 - 文字は英語のまま（どちらのフォントにも日本語が入っていない）
 - クレジットにフォントのライセンス表記を書く（いつどこに書くかは Notion のタスクで管理する）
   - `Press Start 2P — Copyright 2012 The Press Start 2P Project Authors, SIL Open Font License 1.1`
@@ -34,7 +35,7 @@ TextMeshPro の標準フォント（LiberationSans）をやめて、ドット絵
 ## 関連ファイル
 
 - `Assets/_Project/Art/Fonts/PressStart2P/`（TTF・`OFL.txt`・`PressStart2P-Regular SDF.asset`）
-- `Assets/_Project/Art/Fonts/PixelifySans/`（今は使っていない）
+- `Assets/_Project/Art/Fonts/PixelifySans/`（TTF・`OFL.txt`・`PixelifySans-Regular SDF.asset`。HELP / CREDITS の文章で使う）
 - `Assets/TextMesh Pro/Resources/TMP Settings.asset`（Default Font Asset）
 - `Assets/_Project/Scenes/Game.unity` / `Title.unity` / `Assets/_Project/Prefabs/ScorePopup.prefab`
 
