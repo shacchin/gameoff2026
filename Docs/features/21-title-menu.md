@@ -26,18 +26,25 @@ completed:
   1. クリックでポータルを置く。入った車は消えて、少しあとに同じ位置へ戻る
   2. タイミングをずらして車をぶつける。続けて起こすとコンボ
   3. パトカーは事故で壊す。3 台見逃すとゲームオーバー
-- CREDITS の中身: 作者と、使った素材の配布元・ライセンスを短く（URL は itch.io のページに書く）
-  - 車: Pixel Vehicles by MinZinn（CC BY 4.0）
-  - 街のタイル: TopDown City by El Beshuele
-  - 音: OtoLogic（CC BY 4.0）、効果音ラボ
-  - フォント: Press Start 2P / Pixelify Sans（SIL OFL 1.1）
+- CREDITS の中身: 作者と、使った素材の配布元・ライセンス・URL
+  - 見出し `CREDITS` の下に作者を 1 行（`Game by shacchin`）
+  - その下に本文を左右 2 列で並べる。各項目は「黄色の見出し／名前とライセンス／小さい灰色の URL」の 3 行
+  - 左: VEHICLES（Pixel Vehicles by MinZinn、CC BY 4.0）、TILES / CITY（TopDown City by El Beshuele）
+  - 右: MUSIC / SOUND（OtoLogic、CC BY 4.0 ／ Sound Effect Lab）、FONTS（Press Start 2P / Pixelify Sans、SIL OFL 1.1）
+  - URL は文字で見せるだけで、押しても開かない（`https://` は省く）
+- パネルは全面を黒の半透明（75% くらい）で覆い、後ろで車が走るタイトルを暗く見せる。全面の Image が後ろのメニューへのクリックも止める
 - 文字は英語（19）。メニュー・見出し・BACK は Press Start 2P、HELP と CREDITS の文章は Pixelify Sans
 - タイトルを出してから 0.3 秒は入力を受け付けない（今の `inputDelay` を引き継ぐ）
 
 ## 決定事項
 
 - HELP は文字に絵を添える。ページ送りはしない（11/25、ユーザーの判断）
-- クレジットは情報を絞り、名前とライセンスだけにする。URL は画面では押せないので itch.io のページに載せる（11/25、ユーザーの判断）
+- クレジットは名前・ライセンスに加えて URL も小さく出す（11/28、ユーザーの判断）。11/25 の「URL は画面に出さない」から変えた
+  - URL をクリックで開くのはやめた。WebGL の `Application.OpenURL` はブラウザのポップアップブロックに止められることがあり、確実に開くには jslib がいる。押せるリンクは itch.io のページに置く
+- クレジットの本文は 1 列では窮屈だったので左右 2 列にする（11/28、ユーザーの判断）
+- 効果音ラボは英語名の `Sound Effect Lab` で書く（11/28）
+  - 理由: Pixelify Sans の Font Asset は ASCII だけなので、日本語が表示されない（19）
+- 作者は素材と分けて、見出しのすぐ下に 1 行で出す（11/28、ユーザーの判断）
 - メニューの項目は `Button` ではなく、文字に付けた `TitleMenuItem` がカーソルとクリックを受ける（11/25）
   - 理由: `Button` はクリックした項目が EventSystem の「選択中」として残り、カーソルを外しても色が戻らない。`>` を付ける見た目も自前の方が簡単
 - HELP と CREDITS の文章は Pixelify Sans にする（11/25、ユーザーの判断）
@@ -57,7 +64,8 @@ completed:
 
 ## 未決・TODO
 
-- [ ] HELP / CREDITS のパネルの中身を作り、`TitleScreen` の Help Panel / Credits Panel / Back Items に割り当てる（今は空で、押しても何も起きない）
+- [x] CREDITS のパネルを作り、`TitleScreen` の Credits Panel / Back Items に割り当てる（11/28）
+- [ ] HELP のパネルを作り、Help Panel / Back Items に割り当てる（今は空で、押しても何も起きない）。CREDITS と同じ作り（全面の半透明 Image を Alt を押しながら stretch）にする
 - [ ] itch.io のページにクレジットの URL を載せる（提出時）
 
 ## 実装メモ
