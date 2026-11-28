@@ -1,6 +1,8 @@
-# GameOff2026
+# PORTAL PANIC
 
-[Game Off 2026](https://itch.io/jam/game-off-2026)（テーマ: SHIFT）の参加作品。次元ポータルで交通事故を防ぐトップビューの避けゲー。
+[Game Off 2026](https://itch.io/jam/game-off-2026)（テーマ: SHIFT）の参加作品。次元ポータルで車のタイミングをずらし、交通事故を起こしてスコアを稼ぐトップビューのゲーム。
+
+リポジトリと Unity プロジェクトの名前は `GameOff2026` のまま。
 
 ## 環境
 
