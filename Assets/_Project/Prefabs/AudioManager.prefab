@@ -1,0 +1,114 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!1 &4409151607336101807
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 6989699071297736258}
+  - component: {fileID: 664998869730108261}
+  m_Layer: 0
+  m_Name: AudioManager
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &6989699071297736258
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4409151607336101807}
+  serializedVersion: 2
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_ConstrainProportionsScale: 0
+  m_Children: []
+  m_Father: {fileID: 0}
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &664998869730108261
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInstance: {fileID: 0}
+  m_PrefabAsset: {fileID: 0}
+  m_GameObject: {fileID: 4409151607336101807}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 6d32d5699cd8f5141be44fc4b541400f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: Assembly-CSharp::AudioManager
+  titleBgm: {fileID: 8300000, guid: fe18fb2ee94224d43a2c01fa1374e243, type: 3}
+  gameBgm: {fileID: 8300000, guid: f44c4a9a05b8411489ab7f9f26ae642f, type: 3}
+  bgmVolume: 0.3
+  bgmFadeOutDuration: 0.5
+  seVolume: 0.4
+  seVoiceCount: 8
+  crash:
+    clip: {fileID: 8300000, guid: d876d388fb2c8f44e898e19033cb59ea, type: 3}
+    volume: 1
+    pitchJitter: 0.08
+    maxDuration: 0
+    fadeOut: 0.2
+  policeAppear:
+    clip: {fileID: 8300000, guid: 31eea969a2e74d64da1d72038f801d38, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 2
+    fadeOut: 0.5
+  policeMiss:
+    clip: {fileID: 8300000, guid: 84e86f66a5f8df44cb48d5c6d4888e92, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
+  decide:
+    clip: {fileID: 8300000, guid: b9292e1a3e8db044abbd3074ef656a0b, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
+  portalPlace:
+    clip: {fileID: 8300000, guid: 1fbcb9de287f0904db32ddb0056e24a7, type: 3}
+    volume: 1
+    pitchJitter: 0.05
+    maxDuration: 0
+    fadeOut: 0.2
+  portalSwallow:
+    clip: {fileID: 8300000, guid: b52fd989d8efeaf488bb0bae16cace9b, type: 3}
+    volume: 1
+    pitchJitter: 0.08
+    maxDuration: 0
+    fadeOut: 0.2
+  portalRelease:
+    clip: {fileID: 8300000, guid: e233bb155b23f204983e4e222fc1b01c, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
+  releaseEndsOnReturn: 1
+  releaseDelay: 0.3
+  resultItem:
+    clip: {fileID: 8300000, guid: 02f448bfcd01a8e4baa4c583ef507023, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
+  resultScore:
+    clip: {fileID: 8300000, guid: dfc64e51eefde5e48b98a5b47712f519, type: 3}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
+  cursor:
+    clip: {fileID: 0}
+    volume: 1
+    pitchJitter: 0
+    maxDuration: 0
+    fadeOut: 0.2
