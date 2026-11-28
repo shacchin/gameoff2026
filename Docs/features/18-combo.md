@@ -44,7 +44,8 @@ completed: 2026-11-23
 
 ## 未決・TODO
 
-- [ ] スコアで幕が進む（07 の `scoreToEnter`）・背景が赤くなる（`BackgroundTint.scoreForMaxRed`）ので、コンボで点が伸びると今より早く進む。遊んでみて必要なら数値を直す
+- [x] スコアで幕が進む（07 の `scoreToEnter`）・背景が赤くなる（`BackgroundTint.scoreForMaxRed`）ので、コンボで点が伸びると今より早く進む。遊んでみて必要なら数値を直す
+  - → 11/28 に遊んで、`scoreToEnter` を第 2 幕 1500 点・第 3 幕 3000 点に上げた
 
 ## 実装メモ
 
