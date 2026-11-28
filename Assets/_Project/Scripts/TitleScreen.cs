@@ -21,6 +21,8 @@ public class TitleScreen : MonoBehaviour
     [SerializeField] GameObject creditsPanel;
     [Tooltip("HELP / CREDITS パネルの BACK（パネルごとに 1 つずつ）")]
     [SerializeField] TitleMenuItem[] backItems;
+    [Tooltip("HELP / CREDITS パネルを開いている間は隠すもの（タイトルの文字・メニュー）。背景の車は隠さない")]
+    [SerializeField] GameObject[] hideWhilePanelOpen;
 
     float shownTime;
     int selectedIndex;
@@ -135,6 +137,9 @@ public class TitleScreen : MonoBehaviour
         AudioManager.PlaySe(AudioManager.Se.Decide);
         panel.SetActive(true);
         openPanel = panel;
+        // 押した項目は、カーソルが乗ったまま非表示になり、外れた知らせが届かない。閉じたときに選択中で出ないよう、先に戻す
+        Select(-1, playSound: false);
+        SetMenuVisible(false);
     }
 
     void ClosePanel()
@@ -144,5 +149,14 @@ public class TitleScreen : MonoBehaviour
         openPanel = null;
         // BACK をクリックして閉じると、カーソルが乗ったまま非表示になり、外れた知らせが届かない。次に開いたときに黄色で出ないよう戻す
         foreach (TitleMenuItem item in backItems) item.SetSelected(false);
+        SetMenuVisible(true);
+    }
+
+    void SetMenuVisible(bool visible)
+    {
+        foreach (GameObject obj in hideWhilePanelOpen)
+        {
+            if (obj != null) obj.SetActive(visible);
+        }
     }
 }
