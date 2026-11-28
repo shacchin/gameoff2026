@@ -6931,9 +6931,21 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<color=#FFD54A>MUSIC / SOUND</color>\r\nOtoLogic (CC BY 4.0)  /  Sound
-    Effect Lab\r\n  <size=80%><color=#9A9A9A>otologic.jp  /  soundeffect-lab.info</color></size>\r\n\r\n<color=#FFD54A>FONTS</color>\r\nPress
-    Start 2P / Pixelify Sans (SIL OFL 1.1)\r\n  <size=80%><color=#9A9A9A>fonts.google.com</color></size>"
+  m_text: '<color=#FFD54A>MUSIC / SOUND</color>
+
+    OtoLogic (CC BY 4.0)  /  Sound
+    Effect Lab
+
+    <size=80%><color=#9A9A9A>otologic.jp  /  soundeffect-lab.info</color></size>
+
+    
+
+    <color=#FFD54A>FONTS</color>
+
+    Press
+    Start 2P / Pixelify Sans (SIL OFL 1.1)
+
+    <size=80%><color=#9A9A9A>fonts.google.com</color></size>'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 047ee34a473fd5843856991106e727cb, type: 2}
   m_sharedMaterial: {fileID: -2097764839188988454, guid: 047ee34a473fd5843856991106e727cb, type: 2}
@@ -8110,9 +8122,21 @@ MonoBehaviour:
   m_OnCullStateChanged:
     m_PersistentCalls:
       m_Calls: []
-  m_text: "<color=#FFD54A>VEHICLES</color>\r\nPixel Vehicles by MinZinn (CC BY 4.0)\r\n 
-    <size=80%><color=#9A9A9A>minzinn.itch.io/pixelvehicles</color></size>\r\n\r\n<color=#FFD54A>TILES
-    / CITY</color>\r\nTopDown City by El Beshuele\r\n  <size=80%><color=#9A9A9A>elbeshuele.itch.io/topdowncity</color></size>"
+  m_text: '<color=#FFD54A>VEHICLES</color>
+
+    Pixel Vehicles by MinZinn (CC BY
+    4.0)
+
+    <size=80%><color=#9A9A9A>minzinn.itch.io/pixelvehicles</color></size>
+
+    
+
+    <color=#FFD54A>TILES
+    / CITY</color>
+
+    TopDown City by El Beshuele
+
+    <size=80%><color=#9A9A9A>elbeshuele.itch.io/topdowncity</color></size>'
   m_isRightToLeft: 0
   m_fontAsset: {fileID: 11400000, guid: 047ee34a473fd5843856991106e727cb, type: 2}
   m_sharedMaterial: {fileID: -2097764839188988454, guid: 047ee34a473fd5843856991106e727cb, type: 2}

@@ -39,7 +39,7 @@ public class TitleScreen : MonoBehaviour
         foreach (TitleMenuItem item in backItems)
         {
             item.Init(this);
-            item.SetSelected(true); // パネルの中の項目は BACK だけなので、いつも選択中に見せる
+            item.SetSelected(false); // BACK もメニューと同じく、カーソルを乗せている間だけ選択中にする
         }
 
         if (helpPanel != null) helpPanel.SetActive(false);
@@ -66,7 +66,14 @@ public class TitleScreen : MonoBehaviour
 
     public void OnItemHover(TitleMenuItem item)
     {
-        if (openPanel != null || loading) return;
+        if (loading) return;
+        if (item.ItemAction == TitleMenuItem.Action.Back)
+        {
+            item.SetSelected(true);
+            AudioManager.PlaySe(AudioManager.Se.Cursor);
+            return;
+        }
+        if (openPanel != null) return;
         int index = System.Array.IndexOf(menuItems, item);
         if (index >= 0 && index != selectedIndex) Select(index, playSound: true);
     }
@@ -75,6 +82,11 @@ public class TitleScreen : MonoBehaviour
     public void OnItemExit(TitleMenuItem item)
     {
         if (loading) return;
+        if (item.ItemAction == TitleMenuItem.Action.Back)
+        {
+            item.SetSelected(false);
+            return;
+        }
         int index = System.Array.IndexOf(menuItems, item);
         if (index >= 0 && index == selectedIndex) Select(-1, playSound: false);
     }
@@ -130,5 +142,7 @@ public class TitleScreen : MonoBehaviour
         AudioManager.PlaySe(AudioManager.Se.Cursor);
         openPanel.SetActive(false);
         openPanel = null;
+        // BACK をクリックして閉じると、カーソルが乗ったまま非表示になり、外れた知らせが届かない。次に開いたときに黄色で出ないよう戻す
+        foreach (TitleMenuItem item in backItems) item.SetSelected(false);
     }
 }
