@@ -364,7 +364,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: Assembly-CSharp::BackgroundTint
   gameManager: {fileID: 1988816403}
   tilemap: {fileID: 1868955101}
-  scoreForMaxRed: 2000
+  tuning: {fileID: 11400000, guid: db9e0f75fcc5fb14b8f7bcdde4e4f587, type: 2}
   maxSaturation: 0.6
   fadeSpeed: 3
 --- !u!1 &452222323

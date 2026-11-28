@@ -4,6 +4,7 @@ using UnityEngine.Tilemaps;
 /// <summary>
 /// 地面の Tilemap に色を掛けて、スコアの伸びを見せる（Systems の子に 1 つ置く）。
 /// スコアが増えるほど赤く（彩度を上げる）する。スコアは減らないので、赤さも戻らない。
+/// 一番赤くなるのは最後の幕に入るスコア（GameTuning の最後のセクションの scoreToEnter）。幕の数値を変えれば背景も合う。
 /// 色は Tilemap の Color（掛け算）なので、白なら元の絵のまま。車・マークの色は変えない（事故の地点や「+100」が見えにくくならないように）。
 /// </summary>
 public class BackgroundTint : MonoBehaviour
@@ -12,10 +13,10 @@ public class BackgroundTint : MonoBehaviour
     [SerializeField] GameManager gameManager;
     [Tooltip("色を掛ける地面（Grid > Map）")]
     [SerializeField] Tilemap tilemap;
+    [Tooltip("一番赤くなる点数の出どころ。最後のセクションの scoreToEnter で一番赤くなり、それより上は同じ赤さのまま")]
+    [SerializeField] GameTuning tuning;
 
     [Header("色")]
-    [Tooltip("この点数で一番赤くなる。これより上は同じ赤さのまま")]
-    [SerializeField] int scoreForMaxRed = 3000;
     [Tooltip("一番赤いときの彩度（HSV の S）。0 で白のまま、1 で真っ赤")]
     [Range(0f, 1f)]
     [SerializeField] float maxSaturation = 0.6f;
@@ -23,15 +24,17 @@ public class BackgroundTint : MonoBehaviour
     [SerializeField] float fadeSpeed = 3f;
 
     Color current;
+    int scoreForMaxRed;
 
     void Start()
     {
-        if (gameManager == null || tilemap == null)
+        if (gameManager == null || tilemap == null || tuning == null)
         {
-            Debug.LogError("BackgroundTint に GameManager・Tilemap が設定されていません", this);
+            Debug.LogError("BackgroundTint に GameManager・Tilemap・GameTuning が設定されていません", this);
             enabled = false;
             return;
         }
+        if (tuning.sections.Length > 0) scoreForMaxRed = tuning.sections[tuning.sections.Length - 1].scoreToEnter;
         current = TargetColor();
         tilemap.color = current;
     }
